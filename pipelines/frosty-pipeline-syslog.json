@@ -1,0 +1,97 @@
+{
+  "description": "GROK parser for frosty-syslog RFC3164 messages",
+  "processors": [
+    {
+      "set": {
+        "field": "event.original",
+        "copy_from": "message",
+        "ignore_empty_value": true
+      }
+    },
+    {
+      "grok": {
+        "field": "message",
+        "patterns": [
+          "<%{POSINT:log.syslog.priority}>%{SYSLOGTIMESTAMP:syslog.timestamp} %{NOTSPACE:syslog.hostname} %{DATA:syslog.program}(?:\\[%{POSINT:process.pid}\\])?: %{GREEDYDATA:syslog.message}"
+        ],
+        "ignore_missing": true,
+        "ignore_failure": true
+      }
+    },
+    {
+      "date": {
+        "field": "syslog.timestamp",
+        "target_field": "@timestamp",
+        "formats": [
+          "MMM  d HH:mm:ss",
+          "MMM dd HH:mm:ss"
+        ],
+        "ignore_failure": true
+      }
+    },
+    {
+      "convert": {
+        "field": "log.syslog.priority",
+        "type": "integer",
+        "ignore_missing": true,
+        "ignore_failure": true
+      }
+    },
+    {
+      "convert": {
+        "field": "process.pid",
+        "type": "integer",
+        "ignore_missing": true,
+        "ignore_failure": true
+      }
+    },
+    {
+      "grok": {
+        "field": "syslog.message",
+        "patterns": [
+          "Failed password for (?:invalid user )?%{USERNAME:user.name} from %{IP:source.ip} port %{NUMBER:source.port} %{GREEDYDATA}"
+        ],
+        "ignore_missing": true,
+        "ignore_failure": true
+      }
+    },
+    {
+      "grok": {
+        "field": "syslog.message",
+        "patterns": [
+          "%{USERNAME:user.name} : TTY=%{DATA:tty} ; PWD=%{DATA:pwd} ; USER=%{USERNAME:sudo.user} ; COMMAND=%{GREEDYDATA:sudo.command}"
+        ],
+        "ignore_missing": true,
+        "ignore_failure": true
+      }
+    },
+    {
+      "convert": {
+        "field": "source.port",
+        "type": "integer",
+        "ignore_missing": true,
+        "ignore_failure": true
+      }
+    },
+    {
+      "set": {
+        "field": "event.dataset",
+        "value": "syslog"
+      }
+    },
+    {
+      "set": {
+        "field": "event.category",
+        "value": "host"
+      }
+    }
+  ],
+  "on_failure": [
+    {
+      "set": {
+        "field": "error.message",
+        "value": "{{ _ingest.on_failure_message }}"
+      }
+    }
+  ]
+}

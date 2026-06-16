@@ -1,0 +1,30 @@
+[project]
+name = "frosty"
+version = "0.3.0"
+description = "Decode Splunk frozen journal.zst buckets and ingest into Elasticsearch"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "zstandard>=0.22.0",
+]
+
+[project.optional-dependencies]
+api = [
+    "fastapi>=0.115.0",
+    "uvicorn[standard]>=0.32.0",
+    "elastic-apm>=6.23.0",
+    "pydantic>=2.0",
+]
+
+[project.scripts]
+frosty-ingest = "frosty.ingest:main"
+frosty-setup-pipelines = "frosty.deploy_pipelines:main"
+frosty-api = "frosty.api.main:run"
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["frosty*"]

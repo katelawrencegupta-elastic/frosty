@@ -1,0 +1,27 @@
+services:
+  frosty-api:
+    build: .
+    image: frosty-api:latest
+    ports:
+      - "${FROSTY_API_PORT:-8080}:8080"
+    environment:
+      FROSTY_FROZEN_DIR: /data/frozen
+      FROSTY_CHECKPOINT_PATH: /data/checkpoint/.frosty-checkpoint.db
+      FROSTY_API_HOST: 0.0.0.0
+      FROSTY_API_PORT: "8080"
+      FROSTY_JOB_WORKERS: ${FROSTY_JOB_WORKERS:-2}
+      FROSTY_API_KEY: ${FROSTY_API_KEY:-}
+      ELASTIC_URL: ${ELASTIC_URL:-https://klgfrozendata-b0121e.es.us-central1.gcp.elastic.cloud:443}
+      ELASTIC_API_KEY: ${ELASTIC_API_KEY:?Set ELASTIC_API_KEY in .env}
+      ELASTIC_APM_SERVER_URL: ${ELASTIC_APM_SERVER_URL:-}
+      ELASTIC_APM_API_KEY: ${ELASTIC_APM_API_KEY:-}
+      ELASTIC_APM_SECRET_TOKEN: ${ELASTIC_APM_SECRET_TOKEN:-}
+      ELASTIC_APM_SERVICE_NAME: ${ELASTIC_APM_SERVICE_NAME:-frosty-api}
+      ELASTIC_APM_ENVIRONMENT: ${ELASTIC_APM_ENVIRONMENT:-production}
+    volumes:
+      - ${FROSTY_FROZEN_DIR:-/Users/klg/Desktop/frozen}:/data/frozen:ro
+      - frosty-checkpoint:/data/checkpoint
+    restart: unless-stopped
+
+volumes:
+  frosty-checkpoint:
