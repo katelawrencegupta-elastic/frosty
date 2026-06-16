@@ -252,9 +252,9 @@ All settings are driven by environment variables:
 | `FROSTY_API_PORT` | `8080` | HTTP listen port |
 | `FROSTY_API_KEY` | — | Require `X-API-Key` header when set |
 | `FROSTY_JOB_WORKERS` | `2` | Background job thread pool size |
-| `ELASTIC_APM_SERVER_URL` | — | Enable APM when set |
-| `ELASTIC_APM_API_KEY` | — | APM API key auth |
-| `ELASTIC_APM_SECRET_TOKEN` | — | APM secret token auth (alternative) |
+| `ELASTIC_APM_SERVER_URL` | — | Enable APM when set (requires auth below) |
+| `ELASTIC_APM_SECRET_TOKEN` | — | APM secret token from Elastic Cloud **APM & Fleet** (preferred for hosted) |
+| `ELASTIC_APM_API_KEY` | — | APM agent API key from Kibana **Applications** UI (not `ELASTIC_API_KEY`) |
 | `ELASTIC_APM_SERVICE_NAME` | `frosty-api` | Service name in APM |
 | `ELASTIC_APM_ENVIRONMENT` | `production` | APM environment tag |
 
