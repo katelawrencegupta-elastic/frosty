@@ -402,7 +402,7 @@ Frosty scans journals to detect event kinds, deploys shared parser pipelines, an
 | `frosty-parse-access-log` | Apache/Nginx combined log format (GROK) |
 | `frosty-parse-syslog` | Syslog, sshd, sudo patterns (GROK) |
 | `frosty-parse-cloud-trail` | AWS CloudTrail JSON events |
-| `frosty-parse-vpc-flow` | AWS VPC Flow Log version 2 (dissect) |
+| `frosty-parse-vpc-flow` | AWS VPC Flow Log version 2 (dissect → `aws.vpcflow.*`) |
 | `frosty-parse-generic` | Fallback passthrough |
 | `frosty-pipeline-{index}` | Per-index router (routes by `event.kind`) |
 
