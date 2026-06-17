@@ -2,17 +2,17 @@
 
 Decode Splunk frozen `journal.zst` buckets and bulk-ingest events into Elasticsearch.
 
-Frosty reads Splunk's on-disk frozen bucket layout, decodes the binary journal format in pure Python, classifies events (access logs, syslog, generic), and ships them to Elasticsearch with optional ingest pipelines and programmatic or HTTP-based orchestration.
+Frosty reads Splunk's on-disk frozen bucket layout, decodes the binary journal format in pure Python, classifies events (access logs, syslog, AWS CloudTrail, VPC flow logs, and generic), and ships them to Elasticsearch with ingest pipelines and programmatic or HTTP-based orchestration.
 
 ## Features
 
 - **Pure-Python journal decoder** — no Rust extensions or external Splunk tools required
-- **Event classification** — detects access logs, syslog, and generic events per bucket
-- **Ingest pipelines** — deploys GROK parsers and per-index router pipelines automatically
+- **Event classification** — detects access logs, syslog, AWS CloudTrail, VPC flow logs, and generic events per bucket
+- **Ingest pipelines** — deploys GROK, JSON, and dissect parsers plus per-index router pipelines automatically
 - **Parallel ingest** — process multiple buckets concurrently with SQLite checkpointing for resume
 - **Three interfaces** — CLI, Python SDK (`FrostyClient`), and FastAPI HTTP service
 - **Docker** — containerized API with read-only frozen-data mount and persistent checkpoints
-- **Scheduled ingest** — hourly cron script picks up new frozen buckets via the HTTP API
+- **Scheduled sync** — hourly cron script deploys pipelines and ingests new buckets via the HTTP API
 - **Elastic APM** — optional request and job tracing via the HTTP service
 
 ## Requirements
@@ -55,14 +55,20 @@ frosty-ingest --index apache
 
 ### Deploy pipelines
 
-After ingest, attach GROK parsers to your indices:
+Pipelines are deployed automatically during ingest (`frosty-ingest` and `POST /v1/jobs/ingest` scan journals, create parser pipelines, and set each index's default pipeline before bulk indexing). You can also manage them directly:
 
 ```bash
+# Preview detected event kinds per index (no Elasticsearch calls)
+frosty-setup-pipelines --scan-only
+
+# Deploy or refresh pipelines for all indices
 frosty-setup-pipelines
 
 # Re-run existing documents through the router pipeline
 frosty-setup-pipelines --reindex
 ```
+
+Use `frosty-setup-pipelines` when you need to refresh pipelines without ingesting, or `--reindex` to parse documents that were indexed before pipelines existed. The `--reindex` flag runs `_update_by_query` with the router pipeline — it does not delete or recreate indices.
 
 ## Splunk frozen bucket layout
 
@@ -76,6 +82,8 @@ frozen/
         journal.zst
   nginx/
   syslog/
+  cloud_trail/                     # AWS CloudTrail (aws:cloudtrail)
+  vpc_flowlogs/                    # AWS VPC Flow Logs (aws:cloudwatchlogs:vpcflow)
 ```
 
 Point frosty at the root `frozen/` directory. Each index subdirectory contains one or more bucket folders with a `rawdata/journal.zst` file.
@@ -113,7 +121,7 @@ Scan journals, deploy parser pipelines for detected event kinds, and attach rout
 | `--index` | all | Filter to one Splunk index (repeatable) |
 | `--scan-only` | off | Print detected event kinds without deploying |
 | `--write-json` | off | Write pipeline JSON to `pipelines/` |
-| `--reindex` | off | Reindex existing documents through the router |
+| `--reindex` | off | Re-run existing documents through the router pipeline (`_update_by_query`) |
 | `--skip-default-pipeline` | off | Deploy pipelines but don't set index default |
 
 ## Python SDK
@@ -157,7 +165,7 @@ for doc in client.decode_bucket(buckets[0]):
 | `frosty.client` | `FrostyClient` — high-level scan, ingest, pipeline setup |
 | `frosty.buckets` | Discover frozen bucket directories |
 | `frosty.journal` | Decode journals into Elasticsearch documents |
-| `frosty.event_types` | Event classification (`access_log`, `syslog`, `generic`) |
+| `frosty.event_types` | Event classification (`access_log`, `syslog`, `cloud_trail`, `vpc_flow`, `generic`) |
 | `frosty.pipelines` | Ingest pipeline definitions |
 | `frosty.elastic` | Elasticsearch bulk, index, and pipeline operations |
 | `frosty.checkpoint` | SQLite resume state |
@@ -209,6 +217,11 @@ curl -X POST "http://localhost:${PORT}/v1/jobs/ingest" \
   -H "X-API-Key: ${FROSTY_API_KEY}" \
   -d '{"indices": ["apache"], "workers": 2, "resume": true}'
 
+curl -X POST "http://localhost:${PORT}/v1/jobs/pipelines/setup" \
+  -H "Content-Type: application/json" \
+  -H "X-API-Key: ${FROSTY_API_KEY}" \
+  -d '{"indices": ["cloud_trail"], "set_default": true, "reindex": true}'
+
 curl -H "X-API-Key: ${FROSTY_API_KEY}" "http://localhost:${PORT}/v1/jobs/{job_id}"
 
 curl -X POST -H "X-API-Key: ${FROSTY_API_KEY}" "http://localhost:${PORT}/v1/elastic/verify"
@@ -232,13 +245,13 @@ The container:
 - Exposes port **8080** by default (`FROSTY_API_PORT` in `.env` maps host → container)
 - Health-checks `GET /health` and runs as a non-root `frosty` user
 
-Ingest is **on-demand** — the API does not watch the frozen directory. New `journal.zst` buckets are visible immediately via `GET /v1/buckets`, but nothing is sent to Elasticsearch until you POST `/v1/jobs/ingest` (or use the CLI). For hands-off operation, set up the hourly cron job below.
+Ingest is **on-demand** — the API does not watch the frozen directory. New `journal.zst` buckets are visible immediately via `GET /v1/buckets`, but nothing is sent to Elasticsearch until you POST `/v1/jobs/ingest` (or use the CLI). Each ingest job also deploys pipelines for the indices being processed. For hands-off operation, set up the hourly cron job below.
 
 If port 8080 is already in use on the host, set `FROSTY_API_PORT=8099` (or another free port) in `.env` before starting.
 
-### Hourly ingest (cron)
+### Hourly sync (cron)
 
-`scripts/hourly-ingest.sh` triggers a resume ingest against the running API container. With `resume: true`, buckets already recorded in the checkpoint are skipped; only new or failed buckets are processed.
+`scripts/hourly-ingest.sh` keeps pipelines and ingest in sync with the frozen directory:
 
 Install (merges with your existing crontab — use an absolute path):
 
@@ -251,7 +264,12 @@ REPO=/path/to/frosty   # e.g. /Users/you/frosty
 ) | crontab -
 ```
 
-The script sources `.env` for `FROSTY_API_PORT` and `FROSTY_API_KEY`, verifies `/health`, then submits `POST /v1/jobs/ingest`. Override paths with `FROSTY_ENV_FILE` or `FROSTY_LOG_DIR` if needed.
+The script sources `.env` for `FROSTY_API_PORT` and `FROSTY_API_KEY`, verifies `/health`, then:
+
+1. Runs `POST /v1/jobs/pipelines/setup` and waits for completion (deploys parsers and sets index default pipelines)
+2. Submits `POST /v1/jobs/ingest` with `resume: true` (skips buckets already in the checkpoint)
+
+Override paths with `FROSTY_ENV_FILE` or `FROSTY_LOG_DIR`. Tune job polling with `FROSTY_JOB_WAIT_SECONDS` (default `600`) and `FROSTY_JOB_POLL_SECONDS` (default `5`).
 
 Verify and monitor:
 
@@ -347,6 +365,15 @@ All settings are driven by environment variables:
 | `ELASTIC_APM_SERVICE_NAME` | `frosty-api` | Service name in APM |
 | `ELASTIC_APM_ENVIRONMENT` | `production` | APM environment tag |
 
+Cron script overrides (optional):
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `FROSTY_ENV_FILE` | `<repo>/.env` | Env file sourced by `scripts/hourly-ingest.sh` |
+| `FROSTY_LOG_DIR` | `<repo>/logs` | Directory for `hourly-ingest.log` |
+| `FROSTY_JOB_WAIT_SECONDS` | `600` | Max wait for pipeline setup job to finish |
+| `FROSTY_JOB_POLL_SECONDS` | `5` | Poll interval when waiting on jobs |
+
 ## Elasticsearch documents
 
 Events are indexed into `frosty-{index}` (e.g. `frosty-apache`) with:
@@ -356,7 +383,7 @@ Events are indexed into `frosty-{index}` (e.g. `frosty-apache`) with:
 | `@timestamp` | Event time from the journal (ISO-8601 UTC) |
 | `message` | Raw log line (UTF-8 with Latin-1 fallback) |
 | `host`, `source`, `sourcetype` | Splunk metadata (prefixes stripped) |
-| `event.kind` | Detected type: `access_log`, `syslog`, or `generic` |
+| `event.kind` | Detected type: `access_log`, `syslog`, `cloud_trail`, `vpc_flow`, or `generic` |
 | `event.dataset` | Dataset identifier (e.g. `apache.access_log`) |
 | `splunk.index` | Source Splunk index name |
 | `splunk.bucket_name` | Bucket directory name |
@@ -368,14 +395,26 @@ Events are indexed into `frosty-{index}` (e.g. `frosty-apache`) with:
 
 ## Ingest pipelines
 
-Frosty deploys parser and router pipelines based on detected event kinds:
+Frosty scans journals to detect event kinds, deploys shared parser pipelines, and attaches a per-index router (`frosty-pipeline-{index}`) as the index default. New documents are parsed on ingest; use `--reindex` to backfill documents indexed before pipelines existed.
 
 | Pipeline | Purpose |
 |----------|---------|
 | `frosty-parse-access-log` | Apache/Nginx combined log format (GROK) |
 | `frosty-parse-syslog` | Syslog, sshd, sudo patterns (GROK) |
+| `frosty-parse-cloud-trail` | AWS CloudTrail JSON events |
+| `frosty-parse-vpc-flow` | AWS VPC Flow Log version 2 (dissect) |
 | `frosty-parse-generic` | Fallback passthrough |
 | `frosty-pipeline-{index}` | Per-index router (routes by `event.kind`) |
+
+### Event classification
+
+| Kind | Typical sourcetypes | Detection |
+|------|---------------------|-----------|
+| `access_log` | `access_*`, `nginx`, `apache` | Sourcetype, source path, or combined-log message pattern |
+| `syslog` | `syslog`, `linux_syslog` | Sourcetype, `/var/log/syslog` source, or RFC3164 message prefix |
+| `cloud_trail` | `aws:cloudtrail` | Sourcetype or JSON message with `eventVersion` |
+| `vpc_flow` | `aws:cloudwatchlogs:vpcflow` | Sourcetype or space-delimited flow-log message pattern |
+| `generic` | anything else | Fallback when no pattern matches |
 
 Run `frosty-setup-pipelines --scan-only` to preview which pipelines would be deployed for your data.
 
@@ -403,7 +442,7 @@ frosty/
     deploy_pipelines.py  # frosty-setup-pipelines CLI
     api/              # FastAPI service + APM
   scripts/
-    hourly-ingest.sh  # Cron helper — POST resume ingest to the API
+    hourly-ingest.sh  # Cron helper — pipeline setup + resume ingest
   Dockerfile
   docker-compose.yml
   .env.example
