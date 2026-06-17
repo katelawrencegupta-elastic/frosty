@@ -12,6 +12,7 @@ Frosty reads Splunk's on-disk frozen bucket layout, decodes the binary journal f
 - **Parallel ingest** — process multiple buckets concurrently with SQLite checkpointing for resume
 - **Three interfaces** — CLI, Python SDK (`FrostyClient`), and FastAPI HTTP service
 - **Docker** — containerized API with read-only frozen-data mount and persistent checkpoints
+- **Scheduled ingest** — hourly cron script picks up new frozen buckets via the HTTP API
 - **Elastic APM** — optional request and job tracing via the HTTP service
 
 ## Requirements
@@ -172,7 +173,9 @@ export ELASTIC_API_KEY="your-api-key"
 frosty-api
 ```
 
-Interactive docs are available at `http://localhost:8080/docs`.
+For APM tracing, also set `ELASTIC_APM_SERVER_URL` and `ELASTIC_APM_API_KEY` — see [Elastic APM](#elastic-apm).
+
+Interactive docs are available at `http://localhost:${FROSTY_API_PORT:-8080}/docs`.
 
 ### Endpoints
 
@@ -195,35 +198,77 @@ Long-running operations return `202 Accepted` with a `job_id`. Poll `GET /v1/job
 ### Example requests
 
 ```bash
-curl http://localhost:8080/health
+PORT=${FROSTY_API_PORT:-8080}
 
-curl http://localhost:8080/v1/buckets
+curl "http://localhost:${PORT}/health"
 
-curl -X POST http://localhost:8080/v1/jobs/ingest \
+curl -H "X-API-Key: ${FROSTY_API_KEY}" "http://localhost:${PORT}/v1/buckets"
+
+curl -X POST "http://localhost:${PORT}/v1/jobs/ingest" \
   -H "Content-Type: application/json" \
-  -d '{"indices": ["apache"], "workers": 2}'
+  -H "X-API-Key: ${FROSTY_API_KEY}" \
+  -d '{"indices": ["apache"], "workers": 2, "resume": true}'
 
-curl http://localhost:8080/v1/jobs/{job_id}
+curl -H "X-API-Key: ${FROSTY_API_KEY}" "http://localhost:${PORT}/v1/jobs/{job_id}"
 
-curl -X POST http://localhost:8080/v1/elastic/verify
+curl -X POST -H "X-API-Key: ${FROSTY_API_KEY}" "http://localhost:${PORT}/v1/elastic/verify"
 ```
 
 ## Docker
 
 ```bash
 cp .env.example .env
-# Edit .env — set ELASTIC_API_KEY and optional APM keys
+# Edit .env — set ELASTIC_API_KEY and ELASTIC_APM_API_KEY (see Elastic APM below)
 
 docker compose up --build -d
-curl http://localhost:8080/health
+curl http://localhost:${FROSTY_API_PORT:-8080}/health
+docker compose logs -f
 ```
 
 The container:
 
 - Mounts frozen buckets read-only at `/data/frozen`
 - Persists checkpoint state in a Docker volume at `/data/checkpoint`
-- Exposes port **8080** with a built-in health check
-- Runs as a non-root `frosty` user
+- Exposes port **8080** by default (`FROSTY_API_PORT` in `.env` maps host → container)
+- Health-checks `GET /health` and runs as a non-root `frosty` user
+
+Ingest is **on-demand** — the API does not watch the frozen directory. New `journal.zst` buckets are visible immediately via `GET /v1/buckets`, but nothing is sent to Elasticsearch until you POST `/v1/jobs/ingest` (or use the CLI). For hands-off operation, set up the hourly cron job below.
+
+If port 8080 is already in use on the host, set `FROSTY_API_PORT=8099` (or another free port) in `.env` before starting.
+
+### Hourly ingest (cron)
+
+`scripts/hourly-ingest.sh` triggers a resume ingest against the running API container. With `resume: true`, buckets already recorded in the checkpoint are skipped; only new or failed buckets are processed.
+
+Install (merges with your existing crontab — use an absolute path):
+
+```bash
+chmod +x scripts/hourly-ingest.sh
+
+REPO=/path/to/frosty   # e.g. /Users/you/frosty
+( crontab -l 2>/dev/null | grep -v 'frosty/scripts/hourly-ingest.sh'; \
+  echo "0 * * * * ${REPO}/scripts/hourly-ingest.sh >> ${REPO}/logs/hourly-ingest.log 2>&1" \
+) | crontab -
+```
+
+The script sources `.env` for `FROSTY_API_PORT` and `FROSTY_API_KEY`, verifies `/health`, then submits `POST /v1/jobs/ingest`. Override paths with `FROSTY_ENV_FILE` or `FROSTY_LOG_DIR` if needed.
+
+Verify and monitor:
+
+```bash
+./scripts/hourly-ingest.sh
+tail -f logs/hourly-ingest.log
+
+# Poll the submitted job (use job_id from the log line)
+curl -H "X-API-Key: ${FROSTY_API_KEY}" \
+  "http://localhost:${FROSTY_API_PORT:-8080}/v1/jobs?limit=5"
+```
+
+Remove the schedule:
+
+```bash
+crontab -l | grep -v 'frosty/scripts/hourly-ingest.sh' | crontab -
+```
 
 Standalone run:
 
@@ -232,11 +277,55 @@ docker build -t frosty-api .
 
 docker run --rm -p 8080:8080 \
   -v /path/to/frozen:/data/frozen:ro \
-  -e ELASTIC_API_KEY="your-api-key" \
-  -e ELASTIC_APM_SERVER_URL="https://your-apm-server" \
-  -e ELASTIC_APM_API_KEY="your-apm-key" \
+  -e ELASTIC_API_KEY="your-es-api-key" \
+  -e ELASTIC_APM_SERVER_URL="https://your-deployment.apm.region.gcp.elastic.cloud" \
+  -e ELASTIC_APM_API_KEY="your-apm-agent-api-key" \
   frosty-api
 ```
+
+## Elastic APM
+
+The HTTP service can send request traces to Elastic APM when configured. APM credentials are **separate** from `ELASTIC_API_KEY` (the Elasticsearch data key used for ingest).
+
+| Credential | Used for | Where to get it |
+|------------|----------|-----------------|
+| `ELASTIC_API_KEY` | Bulk ingest, pipelines, index management | Elasticsearch / project API keys |
+| `ELASTIC_APM_API_KEY` | APM trace intake | Kibana → **Applications** → **Settings** → **Agent keys** |
+| `ELASTIC_APM_SECRET_TOKEN` | APM trace intake (alternative) | Elastic Cloud Console → deployment → **APM & Fleet** |
+
+Create an APM agent key with at least the **`event:write`** privilege. The value should be a base64-encoded string (typically starting with characters like `OGta...`), not an `essu_` Cloud management key.
+
+Example `.env` entries:
+
+```bash
+ELASTIC_APM_SERVER_URL=https://your-deployment.apm.us-central1.gcp.elastic.cloud
+ELASTIC_APM_API_KEY=your-apm-agent-api-key
+ELASTIC_APM_SERVICE_NAME=frosty-api
+ELASTIC_APM_ENVIRONMENT=production
+```
+
+Verify APM is working:
+
+```bash
+curl "http://localhost:${FROSTY_API_PORT:-8080}/health"
+# expect: "apm_enabled": true
+
+# check container logs — there should be no "HTTP 401: Unauthenticated" errors
+docker compose logs -f
+```
+
+Traces appear in Kibana under **Observability → APM → Services → frosty-api**.
+
+### APM troubleshooting
+
+| Symptom | Cause | Fix |
+|---------|-------|-----|
+| `apm_enabled: false` | Missing or invalid APM credentials | Set `ELASTIC_APM_API_KEY` or `ELASTIC_APM_SECRET_TOKEN` |
+| `ELASTIC_APM_API_KEY matches ELASTIC_API_KEY` | Same key used for ES and APM | Create a dedicated APM agent key |
+| `HTTP 401: illegal base64` | Wrong key format (e.g. `essu_` Cloud API key) | Use an APM agent key from Kibana **Agent keys** |
+| `HTTP 401: Unauthenticated` | Key lacks APM privileges or wrong deployment | Recreate key with `event:write`; confirm `ELASTIC_APM_SERVER_URL` matches your deployment |
+
+Frosty normalizes `essu_`-prefixed keys when possible, but those keys are for the Elastic Cloud REST API and generally will not work for APM intake. Use an APM agent key or secret token instead.
 
 ## Configuration
 
@@ -252,9 +341,9 @@ All settings are driven by environment variables:
 | `FROSTY_API_PORT` | `8080` | HTTP listen port |
 | `FROSTY_API_KEY` | — | Require `X-API-Key` header when set |
 | `FROSTY_JOB_WORKERS` | `2` | Background job thread pool size |
-| `ELASTIC_APM_SERVER_URL` | — | Enable APM when set (requires auth below) |
-| `ELASTIC_APM_SECRET_TOKEN` | — | APM secret token from Elastic Cloud **APM & Fleet** (preferred for hosted) |
-| `ELASTIC_APM_API_KEY` | — | APM agent API key from Kibana **Applications** UI (not `ELASTIC_API_KEY`) |
+| `ELASTIC_APM_SERVER_URL` | — | APM server URL; enables tracing when auth is also set |
+| `ELASTIC_APM_SECRET_TOKEN` | — | APM secret token (Elastic Cloud **APM & Fleet**) |
+| `ELASTIC_APM_API_KEY` | — | APM agent key (Kibana **Applications → Agent keys**); not `ELASTIC_API_KEY` |
 | `ELASTIC_APM_SERVICE_NAME` | `frosty-api` | Service name in APM |
 | `ELASTIC_APM_ENVIRONMENT` | `production` | APM environment tag |
 
@@ -313,6 +402,8 @@ frosty/
     ingest.py         # frosty-ingest CLI
     deploy_pipelines.py  # frosty-setup-pipelines CLI
     api/              # FastAPI service + APM
+  scripts/
+    hourly-ingest.sh  # Cron helper — POST resume ingest to the API
   Dockerfile
   docker-compose.yml
   .env.example
