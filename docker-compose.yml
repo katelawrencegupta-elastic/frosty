@@ -11,7 +11,7 @@ services:
       FROSTY_API_PORT: "8080"
       FROSTY_JOB_WORKERS: ${FROSTY_JOB_WORKERS:-2}
       FROSTY_API_KEY: ${FROSTY_API_KEY:-}
-      ELASTIC_URL: ${ELASTIC_URL:-https://klgfrosty-c18760.es.us-central1.gcp.elastic.cloud:443}
+      ELASTIC_URL: ${ELASTIC_URL:-https://my-observability-project-c113b5.es.us-central1.gcp.elastic.cloud:443}
       ELASTIC_API_KEY: ${ELASTIC_API_KEY:?Set ELASTIC_API_KEY in .env}
       ELASTIC_APM_SERVER_URL: ${ELASTIC_APM_SERVER_URL:-}
       ELASTIC_APM_API_KEY: ${ELASTIC_APM_API_KEY:-}

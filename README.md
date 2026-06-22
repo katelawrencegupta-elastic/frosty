@@ -169,6 +169,7 @@ for doc in client.decode_bucket(buckets[0]):
 | `frosty.pipelines` | Ingest pipeline definitions |
 | `frosty.elastic` | Elasticsearch bulk, index, and pipeline operations |
 | `frosty.checkpoint` | SQLite resume state |
+| `frosty.metrics` | Journal decode timing and process CPU/memory metrics |
 | `frosty.api` | FastAPI HTTP service |
 
 ## HTTP API
@@ -418,6 +419,32 @@ Frosty scans journals to detect event kinds, deploys shared parser pipelines, an
 
 Run `frosty-setup-pipelines --scan-only` to preview which pipelines would be deployed for your data.
 
+## Metrics
+
+Each `journal.zst` decode records per-bucket metrics during ingest:
+
+| Metric | Description |
+|--------|-------------|
+| `journal_size_bytes` | On-disk size of the `journal.zst` file |
+| `decode_duration_ms` | Wall-clock time to decode the journal (ms) |
+| `event_count` | Events decoded from the journal |
+| `process_cpu_time_ms` | CPU time consumed by the process during decode (ms) |
+| `process_cpu_percent` | CPU utilization during decode (0–100%, single-core equivalent) |
+| `process_memory_rss_bytes` | Process RSS after decode |
+| `process_memory_percent` | Process memory as % of system RAM (requires `psutil`) |
+
+Metrics are:
+
+- Returned on each bucket in `IngestResult` / `POST /v1/jobs/ingest` job results
+- Logged at `INFO` as `journal_decode` lines
+- Attached as labels on the active Elastic APM span when APM is enabled
+
+CLI example (metrics appear per bucket and in totals):
+
+```bash
+frosty-ingest --index vpc_flowlogs
+```
+
 ## Journal decoder
 
 Splunk's binary `journal.zst` format is decoded by a vendored pure-Python implementation in `frosty/splunk_journal/`, adapted from:
@@ -437,6 +464,7 @@ frosty/
     pipelines.py      # Ingest pipeline definitions
     elastic.py        # Elasticsearch client operations
     checkpoint.py     # SQLite resume state
+    metrics.py        # Journal decode timing and process metrics
     client.py         # FrostyClient SDK
     ingest.py         # frosty-ingest CLI
     deploy_pipelines.py  # frosty-setup-pipelines CLI
