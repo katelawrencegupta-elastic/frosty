@@ -486,7 +486,7 @@ Events are indexed into `frosty-{index}-{iteration}-{timestamp}` with:
 | Field | Description |
 |-------|-------------|
 | `@timestamp` | Event time from the journal (ISO-8601 UTC) |
-| `message` | Raw log line (UTF-8 with Latin-1 fallback) |
+| `message` | Raw log line (Latin-1 fast path for known access/syslog/VPC sources; UTF-8 otherwise) |
 | `host`, `source`, `sourcetype` | Splunk metadata (prefixes stripped) |
 | `event.kind` | Detected type: `access_log`, `syslog`, `cloud_trail`, `vpc_flow`, or `generic` |
 | `event.dataset` | Dataset identifier (e.g. `apache.access_log`) |
