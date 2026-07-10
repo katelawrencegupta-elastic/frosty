@@ -136,7 +136,7 @@ Decode journals and bulk-index into Elasticsearch (`frosty-{index}-{iteration}-{
 | `--index` | all | Filter to one Splunk index (repeatable) |
 | `--bucket` | all | Filter to one bucket directory name (repeatable) |
 | `--batch-size` | `500` | Bulk API batch size |
-| `--workers` | `1` | Parallel bucket ingest workers |
+| `--workers` | `4` (`FROSTY_INGEST_WORKERS`) | Parallel bucket ingest workers |
 | `--checkpoint` | `<frozen-dir>/.frosty-checkpoint.db` | Resume state database |
 | `--no-resume` | off | Re-ingest buckets even if checkpointed complete |
 | `--force` | off | Clear checkpoint and re-ingest all |
@@ -463,6 +463,11 @@ All settings are driven by environment variables:
 | `FROSTY_API_HOST` | `0.0.0.0` | HTTP bind address |
 | `FROSTY_API_PORT` | `8080` | HTTP listen port |
 | `FROSTY_API_KEY` | — | Require `X-API-Key` header when set |
+| `FROSTY_INGEST_WORKERS` | `4` | Default parallel bucket ingest workers (CLI and API) |
+| `FROSTY_CONTAINER_WORKERS` | `true` | Run each worker in its own Docker container when `workers > 1` |
+| `FROSTY_FROZEN_HOST_DIR` | `FROSTY_FROZEN_DIR` | Host path bind-mounted into worker containers |
+| `FROSTY_CHECKPOINT_VOLUME` | — | Docker volume name for checkpoint state in worker containers |
+| `FROSTY_WORKER_IMAGE` | `frosty-api:latest` | Image used for ingest worker containers |
 | `FROSTY_JOB_WORKERS` | `2` | Background job thread pool size |
 | `ELASTIC_APM_SERVER_URL` | — | APM server URL; enables tracing when auth is also set |
 | `ELASTIC_APM_SECRET_TOKEN` | — | APM secret token (Elastic Cloud **APM & Fleet**) |

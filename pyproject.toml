@@ -21,6 +21,7 @@ api = [
 
 [project.scripts]
 frosty-ingest = "frosty.ingest:main"
+frosty-ingest-worker = "frosty.ingest_worker:main"
 frosty-setup-pipelines = "frosty.deploy_pipelines:main"
 frosty-api = "frosty.api.main:run"
 

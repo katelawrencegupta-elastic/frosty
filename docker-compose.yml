@@ -7,7 +7,11 @@ services:
     environment:
       FROSTY_FROZEN_DIR: /data/frozen
       FROSTY_INGEST_ITERATION: ${FROSTY_INGEST_ITERATION:-}
-      FROSTY_INGEST_WORKERS: ${FROSTY_INGEST_WORKERS:-2}
+      FROSTY_INGEST_WORKERS: ${FROSTY_INGEST_WORKERS:-4}
+      FROSTY_CONTAINER_WORKERS: ${FROSTY_CONTAINER_WORKERS:-true}
+      FROSTY_FROZEN_HOST_DIR: ${FROSTY_FROZEN_DIR:-/Users/klg/Desktop/frozen}
+      FROSTY_CHECKPOINT_VOLUME: ${FROSTY_CHECKPOINT_VOLUME:-frosty_frosty-checkpoint}
+      FROSTY_WORKER_IMAGE: ${FROSTY_WORKER_IMAGE:-frosty-api:latest}
       FROSTY_INDEX_TIMESTAMP: ${FROSTY_INDEX_TIMESTAMP:-}
       FROSTY_CHECKPOINT_PATH: /data/checkpoint/.frosty-checkpoint.db
       FROSTY_API_HOST: 0.0.0.0
@@ -24,6 +28,9 @@ services:
     volumes:
       - ${FROSTY_FROZEN_DIR:-/Users/klg/Desktop/frozen}:/data/frozen:ro
       - frosty-checkpoint:/data/checkpoint
+      - /var/run/docker.sock:/var/run/docker.sock
+    # Root required to talk to the mounted Docker socket when spawning worker containers.
+    user: "0:0"
     restart: unless-stopped
 
 volumes:
