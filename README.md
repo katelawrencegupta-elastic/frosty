@@ -13,7 +13,9 @@ Frosty reads Splunk's on-disk frozen bucket layout, decodes the binary journal f
 - **Three interfaces** — CLI, Python SDK (`FrostyClient`), and FastAPI HTTP service
 - **Docker** — containerized API with read-only frozen-data mount and persistent checkpoints
 - **Scheduled sync** — hourly cron script deploys pipelines and ingests new buckets via the HTTP API
-- **Prometheus metrics** — journal decode, ingest, and API job counters/histograms (`GET /metrics`)
+- **Prometheus metrics** — journal decode, ingest, and API job counters/histograms (`GET /metrics`, optional auth)
+- **Elasticsearch remote write** — API pushes metrics every 15s; CLI pushes once after each ingest
+- **API authentication** — separate keys for `/v1/*` routes and `/metrics` scraping
 - **Journal decode observability** — per-bucket file size, decode time, CPU, and memory (`psutil`)
 - **Elastic APM** — optional request, job, and decode-metric tracing via the HTTP service
 
@@ -39,6 +41,13 @@ For the HTTP API and APM support:
 
 ```bash
 pip install -e ".[api]"
+```
+
+For running API tests locally:
+
+```bash
+pip install -e ".[dev]"
+python -m unittest tests.test_api_phase1 -v
 ```
 
 ### Ingest
@@ -76,9 +85,10 @@ frosty-ingest --workers 2
 # Pin a specific iteration without advancing the counter
 frosty-ingest --iteration 2.5 --workers 2
 
-# API — auto increment
+# API — auto increment (requires X-API-Key when FROSTY_API_KEY is set)
 curl -X POST http://localhost:8099/v1/jobs/ingest \
   -H "Content-Type: application/json" \
+  -H "X-API-Key: ${FROSTY_API_KEY}" \
   -d '{"workers": 2, "resume": true}'
 
 # Starting value when no state file exists (default 1.0)
@@ -214,8 +224,9 @@ for doc in client.decode_bucket(buckets[0]):
 | `frosty.pipelines` | Ingest pipeline definitions |
 | `frosty.elastic` | Elasticsearch bulk, index, and pipeline operations |
 | `frosty.checkpoint` | SQLite resume state |
-| `frosty.metrics` | Prometheus metrics, journal decode timing, and process CPU/memory |
-| `frosty.api` | FastAPI HTTP service |
+| `frosty.metrics` | Prometheus metrics, journal decode timing, API job counters |
+| `frosty.prometheus_remote` | Elasticsearch Prometheus remote write pusher |
+| `frosty.api` | FastAPI HTTP service (`frosty.api.auth` for API/metrics keys) |
 
 ## HTTP API
 
@@ -223,13 +234,39 @@ Install API dependencies, set credentials, and start the service:
 
 ```bash
 pip install -e ".[api]"
-export ELASTIC_API_KEY="your-api-key"
+cp .env.example .env
+# Edit .env — set ELASTIC_API_KEY, FROSTY_API_KEY, and FROSTY_METRICS_API_KEY
+
+export ELASTIC_API_KEY="your-es-api-key"
+export FROSTY_API_KEY="your-api-key"
+export FROSTY_METRICS_API_KEY="your-metrics-scrape-key"
+export FROSTY_REQUIRE_API_KEY=true
+
 frosty-api
 ```
 
 For APM tracing, also set `ELASTIC_APM_SERVER_URL` and `ELASTIC_APM_API_KEY` — see [Elastic APM](#elastic-apm).
 
-Interactive docs are available at `http://localhost:${FROSTY_API_PORT:-8080}/docs`.
+Interactive docs are available at `http://localhost:${FROSTY_API_PORT:-8080}/docs` (disable with `FROSTY_DISABLE_DOCS=true`).
+
+### Authentication
+
+Frosty uses two optional shared secrets, both sent via the `X-API-Key` header:
+
+| Credential | Env var | Protects |
+|------------|---------|----------|
+| API key | `FROSTY_API_KEY` | All `/v1/*` routes |
+| Metrics key | `FROSTY_METRICS_API_KEY` | `GET /metrics` only |
+
+**Production (recommended):** set `FROSTY_REQUIRE_API_KEY=true`. The service refuses to start if `FROSTY_API_KEY` is unset. Docker Compose enables this by default.
+
+**Development:** leave `FROSTY_REQUIRE_API_KEY` unset and omit `FROSTY_API_KEY` to allow unauthenticated `/v1/*` access. `/metrics` remains open until `FROSTY_METRICS_API_KEY` is set.
+
+Key comparison uses constant-time `secrets.compare_digest`.
+
+**Failed jobs** return `error` (message string) but never include Python tracebacks in the JSON response. Full stack traces are logged server-side only.
+
+**`GET /v1/jobs`** accepts `limit` (1–500, default 50).
 
 ### Endpoints
 
@@ -248,7 +285,9 @@ Interactive docs are available at `http://localhost:${FROSTY_API_PORT:-8080}/doc
 
 Set `FROSTY_REQUIRE_API_KEY=true` (recommended in production) to require `FROSTY_API_KEY` at startup and on all `/v1/*` routes via the `X-API-Key` header.
 
-`GET /metrics` uses a separate `FROSTY_METRICS_API_KEY` when set (same `X-API-Key` header) so Prometheus scrapers can use a dedicated credential.
+`GET /metrics` uses a separate `FROSTY_METRICS_API_KEY` when set (same `X-API-Key` header) so Prometheus scrapers can use a dedicated credential with narrower scope.
+
+`GET /health` is always unauthenticated and reports `prometheus_remote_write_enabled` when remote write is configured.
 
 Long-running operations return `202 Accepted` with a `job_id`. Poll `GET /v1/jobs/{job_id}` until `status` is `completed` or `failed`.
 
@@ -288,21 +327,28 @@ curl -X POST -H "X-API-Key: ${FROSTY_API_KEY}" "http://localhost:${PORT}/v1/elas
 
 ```bash
 cp .env.example .env
-# Edit .env — set ELASTIC_API_KEY and ELASTIC_APM_API_KEY (see Elastic APM below)
+# Edit .env — set ELASTIC_API_KEY, FROSTY_API_KEY, FROSTY_METRICS_API_KEY (see below)
 
 docker compose up --build -d
 curl http://localhost:${FROSTY_API_PORT:-8080}/health
 docker compose logs -f
 ```
 
-Example `.env` for an Elastic **Observability** project:
+Example `.env` for production-style deployment:
 
 ```bash
 FROSTY_FROZEN_DIR=/Users/klg/Desktop/frozen
 FROSTY_API_PORT=8099
 
+# Required in Docker Compose (FROSTY_REQUIRE_API_KEY=true)
+FROSTY_API_KEY=your-frosty-api-key
+FROSTY_METRICS_API_KEY=your-prometheus-scrape-key
+
 ELASTIC_URL=https://klgfrostydev-f84e40.es.us-central1.gcp.elastic.cloud:443
 ELASTIC_API_KEY=your-es-api-key
+
+# In-process workers (no docker.sock mount required)
+FROSTY_CONTAINER_WORKERS=false
 
 ELASTIC_APM_SERVER_URL=https://klgfrostydev-f84e40.apm.us-central1.gcp.elastic.cloud
 ELASTIC_APM_API_KEY=your-apm-agent-api-key
@@ -324,26 +370,29 @@ print(r.total_indexed, 'indexed,', r.failed, 'failed')
 "
 ```
 
-Or via the API:
+Or via the API (requires `X-API-Key` when `FROSTY_API_KEY` is set):
 
 ```bash
 curl -X POST "http://localhost:${FROSTY_API_PORT:-8099}/v1/jobs/pipelines/setup" \
   -H "Content-Type: application/json" \
+  -H "X-API-Key: ${FROSTY_API_KEY}" \
   -d '{"set_default": true}'
 
 curl -X POST "http://localhost:${FROSTY_API_PORT:-8099}/v1/jobs/ingest" \
   -H "Content-Type: application/json" \
+  -H "X-API-Key: ${FROSTY_API_KEY}" \
   -d '{"force": true, "resume": false, "workers": 2}'
 ```
 
-Documents land in `frosty-{index}-{iteration}-{timestamp}` indices (e.g. `frosty-apache-1-20250710120000`). Ingest job results include per-bucket decode metrics under `metrics`.
+Documents land in `frosty-{index}-{iteration}-{timestamp}` indices (e.g. `frosty-apache-1-20250710120000`).
 
 The container:
 
 - Mounts frozen buckets read-only at `/data/frozen`
 - Persists checkpoint state in a Docker volume at `/data/checkpoint`
 - Exposes port **8080** by default (`FROSTY_API_PORT` in `.env` maps host → container)
-- Health-checks `GET /health` and runs as a non-root `frosty` user
+- Health-checks `GET /health` and runs as the non-root `frosty` user
+- Uses in-process parallel workers by default (`FROSTY_CONTAINER_WORKERS=false`) — no Docker socket mount
 
 Ingest is **on-demand** — the API does not watch the frozen directory. New `journal.zst` buckets are visible immediately via `GET /v1/buckets`, but nothing is sent to Elasticsearch until you POST `/v1/jobs/ingest` (or use the CLI). Each ingest job also deploys pipelines for the indices being processed. For hands-off operation, set up the hourly cron job below.
 
@@ -364,7 +413,7 @@ REPO=/path/to/frosty   # e.g. /Users/you/frosty
 ) | crontab -
 ```
 
-The script sources `.env` for `FROSTY_API_PORT` and `FROSTY_API_KEY`, verifies `/health`, then:
+The script sources `.env` for `FROSTY_API_PORT` and `FROSTY_API_KEY` (required when `FROSTY_REQUIRE_API_KEY=true`), verifies `/health`, then:
 
 1. Runs `POST /v1/jobs/pipelines/setup` and waits for completion (deploys parsers and sets index default pipelines)
 2. Submits `POST /v1/jobs/ingest` with `resume: true` (skips buckets already in the checkpoint)
@@ -395,11 +444,16 @@ docker build -t frosty-api .
 
 docker run --rm -p 8080:8080 \
   -v /path/to/frozen:/data/frozen:ro \
+  -e FROSTY_REQUIRE_API_KEY=true \
+  -e FROSTY_API_KEY="your-api-key" \
+  -e FROSTY_METRICS_API_KEY="your-metrics-key" \
   -e ELASTIC_API_KEY="your-es-api-key" \
   -e ELASTIC_APM_SERVER_URL="https://your-deployment.apm.region.gcp.elastic.cloud" \
   -e ELASTIC_APM_API_KEY="your-apm-agent-api-key" \
   frosty-api
 ```
+
+To use isolated Docker worker containers on bare metal (not recommended inside the Compose service), set `FROSTY_CONTAINER_WORKERS=true` and ensure the host can run `docker` — this requires mounting `/var/run/docker.sock` and is not used by default in `docker-compose.yml`.
 
 ## Elastic APM
 
@@ -432,7 +486,7 @@ Verify APM is working:
 
 ```bash
 curl "http://localhost:${FROSTY_API_PORT:-8080}/health"
-# expect: "apm_enabled": true
+# expect: "apm_enabled": true, "prometheus_remote_write_enabled": true (when configured)
 
 # check container logs — there should be no "HTTP 401: Unauthenticated" errors
 docker compose logs -f
@@ -479,6 +533,8 @@ All settings are driven by environment variables:
 | `FROSTY_JOB_WORKERS` | `2` | Background job thread pool size |
 | `FROSTY_PROMETHEUS_REMOTE_WRITE_ENABLED` | `true` | Push metrics to Elasticsearch remote write |
 | `FROSTY_PROMETHEUS_REMOTE_WRITE_INTERVAL_SECONDS` | `15` | Background push interval for `frosty-api` |
+| `FROSTY_PROMETHEUS_REMOTE_WRITE_METRIC_PREFIX` | `frosty_` | Only export metrics with this name prefix (empty = all) |
+| `FROSTY_PROMETHEUS_REMOTE_WRITE_TIMEOUT_SECONDS` | `30` | HTTP timeout per remote-write push |
 | `ELASTIC_APM_SERVER_URL` | — | APM server URL; enables tracing when auth is also set |
 | `ELASTIC_APM_SECRET_TOKEN` | — | APM secret token (Elastic Cloud **APM & Fleet**) |
 | `ELASTIC_APM_API_KEY` | — | APM agent key (Kibana **Applications → Agent keys**); not `ELASTIC_API_KEY` |
@@ -551,14 +607,28 @@ Run `frosty-setup-pipelines --scan-only` to preview which pipelines would be dep
 
 ## Metrics
 
-Frosty exposes [Prometheus](https://prometheus.io/) metrics and per-bucket decode details on ingest job results.
+Frosty exposes [Prometheus](https://prometheus.io/) metrics on the API service and can push them to Elasticsearch via remote write.
 
 ### Prometheus (`GET /metrics`)
 
-Available on the API service (`frosty-api`). Scrape with Prometheus or curl:
+Available on the API service (`frosty-api`). When `FROSTY_METRICS_API_KEY` is set, pass it as the `X-API-Key` header:
 
 ```bash
-curl -s localhost:8080/metrics
+curl -s -H "X-API-Key: ${FROSTY_METRICS_API_KEY}" \
+  "http://localhost:${FROSTY_API_PORT:-8080}/metrics"
+```
+
+Prometheus scrape config with custom header (Prometheus 2.45+):
+
+```yaml
+scrape_configs:
+  - job_name: frosty
+    metrics_path: /metrics
+    static_configs:
+      - targets: ["frosty-api:8080"]
+    http_headers:
+      X-API-Key:
+        values: ["${FROSTY_METRICS_API_KEY}"]
 ```
 
 | Metric | Type | Labels | Description |
@@ -573,7 +643,18 @@ curl -s localhost:8080/metrics
 | `frosty_ingest_buckets_total` | Counter | `index_name`, `ingest_iteration`, `index_timestamp`, `status` | Bucket outcomes (`completed`, `failed`, `skipped`) |
 | `frosty_bucket_process_cpu_seconds` | Histogram | `index_name`, `ingest_iteration`, `index_timestamp` | Process CPU seconds per bucket (decode + bulk index) |
 | `frosty_bucket_process_duration_seconds` | Histogram | `index_name`, `ingest_iteration`, `index_timestamp` | Wall-clock seconds per bucket ingest |
-| `frosty_api_jobs_total` | Counter | `job_type`, `status` | API jobs (`submitted`, `completed`, `failed`) |
+| `frosty_api_jobs_total` | Counter | `job_type`, `status` | API jobs (`submitted`, `running`, `completed`, `failed`) |
+
+### API job metrics
+
+Background jobs increment `frosty_api_jobs_total` on each state transition:
+
+| `status` label | When |
+|----------------|------|
+| `submitted` | Job accepted into the thread pool |
+| `running` | Worker thread started |
+| `completed` | Job finished successfully |
+| `failed` | Job raised an exception (`error` field set; no traceback in response) |
 
 ### APM traces (ingest)
 
@@ -591,23 +672,18 @@ Parallel workers emit one `frosty.ingest_bucket` transaction per bucket (with th
 
 ### Remote write to Elasticsearch
 
-When `ELASTIC_URL` and `ELASTIC_API_KEY` are set, frosty pushes metrics to Elasticsearch's native Prometheus remote write endpoint:
+When `ELASTIC_URL` and `ELASTIC_API_KEY` are set and `FROSTY_PROMETHEUS_REMOTE_WRITE_ENABLED` is not `false`, frosty pushes metrics to Elasticsearch's native Prometheus remote write endpoint:
 
 ```
 {ELASTIC_URL}/_prometheus/api/v1/write
 ```
 
-- **API service** — background push every 15s (configurable)
-- **CLI ingest** — one push after each ingest run completes
+- **API service (`frosty-api`)** — background pusher starts on app startup and stops on shutdown; pushes every 15s by default
+- **CLI (`frosty-ingest`)** — one push after each successful ingest run (skipped on `--dry-run`)
 
-| Variable | Default | Description |
-|----------|---------|-------------|
-| `FROSTY_PROMETHEUS_REMOTE_WRITE_ENABLED` | `true` | Set to `false` to disable remote write |
-| `FROSTY_PROMETHEUS_REMOTE_WRITE_INTERVAL_SECONDS` | `15` | Background push interval for `frosty-api` |
-| `FROSTY_PROMETHEUS_REMOTE_WRITE_METRIC_PREFIX` | `frosty_` | Only export metrics with this name prefix (empty = all) |
-| `FROSTY_PROMETHEUS_REMOTE_WRITE_TIMEOUT_SECONDS` | `30` | HTTP timeout per push |
+The Elasticsearch API key must have write access to `metrics-*` data streams. `GET /health` reports `prometheus_remote_write_enabled: true` when remote write is configured (credentials present and enabled).
 
-The API key must have write access to `metrics-*` data streams. `GET /health` reports `prometheus_remote_write_enabled`.
+Remote-write env vars are listed in [Configuration](#configuration) (`FROSTY_PROMETHEUS_*`).
 
 ### Per-bucket job results
 
@@ -632,8 +708,8 @@ Structured logs at `INFO` (use `frosty-ingest -v` for `DEBUG`):
 - `journal_decode` — per-bucket decode timing and resource usage
 - `ingest_bucket` — bucket ingest outcome
 - `ingest_start` / `ingest_complete` — run-level summaries
-- `job_submitted` / `job_start` / `job_complete` / `job_failed` — API background jobs
-- `prometheus_remote_write` / `prometheus_remote_write_started` — Elasticsearch remote write pushes
+- `job_failed` — API background job failures (full traceback in server logs only)
+- `prometheus_remote_write` / `prometheus_remote_write_started` / `prometheus_remote_write_stopped` — Elasticsearch remote write lifecycle
 
 When Elastic APM is enabled, decode and ingest metrics include `ingest_iteration`, `index_timestamp`, and combined `ingest_run` (`{iteration}-{timestamp}`) on transactions and spans.
 
@@ -667,7 +743,9 @@ frosty/
     client.py         # FrostyClient SDK
     ingest.py         # frosty-ingest CLI
     deploy_pipelines.py  # frosty-setup-pipelines CLI
-    api/              # FastAPI service + APM
+    api/              # FastAPI service, auth, APM
+  tests/
+    test_api_phase1.py  # API auth, jobs, remote-write lifespan
   scripts/
     hourly-ingest.sh  # Cron helper — pipeline setup + resume ingest
   Dockerfile
