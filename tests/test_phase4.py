@@ -25,27 +25,30 @@ class BulkPipelineConfigTests(unittest.TestCase):
         os.environ.clear()
         os.environ.update(self._env)
 
-    def test_pipeline_disabled_by_default(self) -> None:
+    def test_pipeline_enabled_by_default(self) -> None:
         os.environ.pop("FROSTY_BULK_PIPELINE_ENABLED", None)
-        self.assertFalse(bulk_pipeline_enabled())
-
-    def test_pipeline_enabled_from_env(self) -> None:
-        os.environ["FROSTY_BULK_PIPELINE_ENABLED"] = "true"
         self.assertTrue(bulk_pipeline_enabled())
 
-    def test_prefetch_defaults_to_one(self) -> None:
+    def test_pipeline_disabled_from_env(self) -> None:
+        os.environ["FROSTY_BULK_PIPELINE_ENABLED"] = "false"
+        self.assertFalse(bulk_pipeline_enabled())
+
+    def test_prefetch_defaults_to_two(self) -> None:
         os.environ.pop("FROSTY_BULK_PIPELINE_PREFETCH", None)
-        self.assertEqual(bulk_pipeline_prefetch_batches(), 1)
+        self.assertEqual(bulk_pipeline_prefetch_batches(), 2)
 
     def test_bulk_refresh_disabled_by_default(self) -> None:
         os.environ.pop("FROSTY_BULK_REFRESH", None)
         self.assertFalse(bulk_refresh_enabled())
-        self.assertEqual(_bulk_api_path(), "/_bulk?refresh=false")
+        path = _bulk_api_path("frosty-apache-1.0-test")
+        self.assertTrue(path.startswith("/frosty-apache-1.0-test/_bulk?refresh=false"))
+        self.assertIn("filter_path=", path)
 
     def test_bulk_refresh_wait_for_when_enabled(self) -> None:
         os.environ["FROSTY_BULK_REFRESH"] = "true"
         self.assertTrue(bulk_refresh_enabled())
-        self.assertEqual(_bulk_api_path(), "/_bulk?refresh=wait_for")
+        path = _bulk_api_path("frosty-apache-1.0-test")
+        self.assertTrue(path.startswith("/frosty-apache-1.0-test/_bulk?refresh=wait_for"))
 
 
 class BulkPipelineBehaviorTests(unittest.TestCase):
@@ -56,7 +59,7 @@ class BulkPipelineBehaviorTests(unittest.TestCase):
     def test_sync_and_pipelined_index_same_document_count(self) -> None:
         flush_calls: list[int] = []
 
-        def _fake_flush(batch, *, elastic_url, api_key):
+        def _fake_flush(batch, *, elastic_url, api_key, index_name):
             flush_calls.append(len(batch) // 2)
             return len(batch) // 2, 0
 

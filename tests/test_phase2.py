@@ -98,6 +98,7 @@ class JournalMetricsAggregationTests(unittest.TestCase):
             index_name="apache",
             ingest_iteration="1.0",
             index_timestamp="20250713120000",
+            ingest_run="1.0-20250713120000",
         )._value.get()
 
         record_journal_decode(
@@ -114,6 +115,7 @@ class JournalMetricsAggregationTests(unittest.TestCase):
             index_name="apache",
             ingest_iteration="1.0",
             index_timestamp="20250713120000",
+            ingest_run="1.0-20250713120000",
         )._value.get()
         self.assertEqual(after, before + 1)
 

@@ -73,6 +73,7 @@ class BucketPhaseMetricsTests(unittest.TestCase):
             "index_name": "apache",
             "ingest_iteration": "1.0",
             "index_timestamp": "20250713120000",
+            "ingest_run": "1.0-20250713120000",
         }
         decode_before = JOURNAL_DECODE_DURATION_SECONDS.labels(**labels)._sum.get()
         bulk_before = BUCKET_BULK_DURATION_SECONDS.labels(**labels)._sum.get()
@@ -134,6 +135,7 @@ class BucketPhaseMetricsTests(unittest.TestCase):
             "index_name": "apache",
             "ingest_iteration": "1.0",
             "index_timestamp": "20250713120000",
+            "ingest_run": "1.0-20250713120000",
         }
         read_before = JOURNAL_READ_DURATION_SECONDS.labels(**labels)._sum.get()
 
