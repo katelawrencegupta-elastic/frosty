@@ -536,9 +536,13 @@ All settings are driven by environment variables:
 | `FROSTY_CONTAINER_WORKERS` | `true` | Run each worker in its own Docker container when `workers > 1` (set `false` in Docker Compose) |
 | `FROSTY_SKIP_METADATA` | `true` | Skip Splunk metadata field extraction during decode (omits `splunk.fields`) |
 | `FROSTY_BULK_PIPELINE_ENABLED` | `true` | Overlap journal decode with Elasticsearch bulk flush in a background thread |
-| `FROSTY_BULK_PIPELINE_PREFETCH` | `2` | Bulk batches buffered between decode and flush when pipeline is enabled |
+| `FROSTY_BULK_PIPELINE_PREFETCH` | `4` | Bulk batches buffered between decode and flush when pipeline is enabled |
+| `FROSTY_BULK_FLUSH_WORKERS` | `2` | Concurrent `_bulk` flush threads per pipelined bucket (ES capacity) |
+| `FROSTY_BULK_GZIP_LEVEL` | `1` | Gzip compresslevel for bulk bodies (`1`=fast … `9`=small) |
+| `FROSTY_BULK_BATCH_SIZE` | `5000` | Documents per Elasticsearch `_bulk` request |
+| `FROSTY_ES_HTTP_POOL_MAXSIZE` | `32` | Max connections per host in the urllib3 pool |
+| `FROSTY_ES_HTTP_POOL_NUM_POOLS` | `16` | Max host pools in the urllib3 pool manager |
 | `FROSTY_DECODE_TIMING_SAMPLE` | `64` | Sample per-event decode clocks every N events (1 = every event) |
-| `FROSTY_BULK_BATCH_SIZE` | `2000` | Documents per Elasticsearch `_bulk` request (500 is slow for large buckets) |
 | `FROSTY_BULK_REFRESH` | `false` | When false, bulk requests use `refresh=false` for faster ingest |
 | `FROSTY_FROZEN_HOST_DIR` | `FROSTY_FROZEN_DIR` | Host path bind-mounted into worker containers |
 | `FROSTY_CHECKPOINT_VOLUME` | — | Docker volume name for checkpoint state in worker containers |
@@ -569,17 +573,17 @@ Frosty includes several ingest optimizations. Most are enabled by default.
 
 ### Baseline: iteration 2.0
 
-Use **ingest iteration `2.0`** as the metrics and throughput baseline for this codebase. Decode Prom numbers from **1.7 and earlier are not comparable** (the meter excluded `decoder.scan()` and used biased sampling). Prefer **1.9+** for phase timing and treat **2.0** as the reference after API/metrics/metadata-skip hardening.
+Use **ingest iteration `2.0`** (package version **2.0.0**) as the metrics and throughput baseline for this codebase. Decode Prom numbers from **1.7 and earlier are not comparable** (the meter excluded `decoder.scan()` and used biased sampling). Prefer **1.8+** for phase timing.
 
 Prometheus labels on ingest histograms/counters are **`index_name` + `ingest_iteration` only** (timestamp / `ingest_run` remain in logs and APM to avoid unbounded series cardinality). Run wall uses **`ingest_iteration`** alone.
 
-Reference full ingest of the local frozen dataset under the prior 1.9 baseline (`/Users/klg/Desktop/frozen`, 23 buckets, 2,123,277 docs, 4 local workers):
+Reference full ingest of the local frozen dataset (`/Users/klg/Desktop/frozen`, 23 buckets, 2,123,277 docs, 4 local workers):
 
-| Signal | 1.9 reference (`1.9-20260713205615`) |
+| Signal | 2.0 reference (`2.0-20260713220152`) |
 |--------|--------------------------------------|
-| End-to-end wall (`frosty_ingest_duration_seconds`) | **189.796 s** (~3.2 min) |
+| End-to-end wall (`frosty_ingest_duration_seconds`) | **189.211 s** (~3.2 min) |
 | Documents indexed | 2,123,277 (0 errors) |
-| Defaults in effect | decode/bulk pipeline on, skip metadata, sample=64, batch=2000, refresh=false |
+| Defaults in effect | decode/bulk pipeline on, skip-metadata varint walk, sample=64, batch=2000, refresh=false |
 
 For regressions, prefer run wall / docs-s over summing per-bucket process durations (bucket walls overlap under parallel workers). Phase metrics (`read` / `decode` / `bulk`) split work inside a run; compare them only against other 1.8+ runs.
 
@@ -589,10 +593,14 @@ For regressions, prefer run wall / docs-s over summing per-bucket process durati
 | Latin-1 text decode fast path | Always on | Used for apache/nginx/syslog/vpc_flowlogs and matching sourcetypes (`text_decode.py`) |
 | Bucket-level parallelism | Configurable | `FROSTY_INGEST_WORKERS`, `FROSTY_CONTAINER_WORKERS`, `FROSTY_PARTITION_STRATEGY` |
 | Decode/bulk pipeline overlap | **On by default** | Set `FROSTY_BULK_PIPELINE_ENABLED=false` to disable |
+| Concurrent bulk flush workers | **2** | `FROSTY_BULK_FLUSH_WORKERS` (in-flight `_bulk` capacity per bucket) |
+| Bulk pipeline prefetch | **4** | `FROSTY_BULK_PIPELINE_PREFETCH` |
 | Skip metadata extraction | **On by default** | Set `FROSTY_SKIP_METADATA=false` to keep `splunk.fields`; skip path walks varints only (no field maps) |
 | Decode timing sample | Every 64 events | `FROSTY_DECODE_TIMING_SAMPLE` (1 = every event); times `scan()` + map; extrapolates mean × N |
 | orjson bulk serialization | Always on | Faster NDJSON for Elasticsearch `_bulk` |
-| Bulk batch size | **2000** | Raise `FROSTY_BULK_BATCH_SIZE` (up to 5000) for fewer HTTP round-trips |
+| Bulk gzip level | **1** (fast) | `FROSTY_BULK_GZIP_LEVEL` (`1`–`9`) |
+| Bulk batch size | **5000** | Raise further only if ES accepts larger HTTP bodies |
+| HTTP connection pool | **32 / 16** | `FROSTY_ES_HTTP_POOL_MAXSIZE` / `FROSTY_ES_HTTP_POOL_NUM_POOLS` |
 | Bulk refresh | **`refresh=false`** | Keep `FROSTY_BULK_REFRESH=false` during ingest; documents become searchable on index refresh interval |
 | Run wall clock | Always on | `frosty_ingest_duration_seconds` + `IngestResult.duration_seconds` |
 
@@ -612,8 +620,10 @@ flowchart LR
     end
 ```
 
-- `FROSTY_BULK_PIPELINE_PREFETCH` (default `2`) controls how many bulk batches can be buffered ahead of the flush thread
-- Higher prefetch can improve throughput on high-latency Elasticsearch clusters at the cost of more memory (`prefetch × batch_size × avg_doc_size`)
+- `FROSTY_BULK_PIPELINE_PREFETCH` (default `4`) controls how many bulk batches can be buffered ahead of the flush thread(s)
+- `FROSTY_BULK_FLUSH_WORKERS` (default `2`) runs concurrent `_bulk` POSTs per bucket to use more Elasticsearch ingest capacity
+- `FROSTY_BULK_GZIP_LEVEL` (default `1`) trades wire size for faster client-side compression
+- Higher prefetch / flush workers can improve throughput on high-latency clusters at the cost of more memory (`prefetch × batch_size × avg_doc_size` plus in-flight requests)
 - Errors from either thread fail the bucket ingest; partial batches are not committed after a decode failure
 
 Disable only if you need deterministic single-thread decode→flush behavior:

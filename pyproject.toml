@@ -1,6 +1,6 @@
 [project]
 name = "frosty"
-version = "0.3.0"
+version = "2.0.0"
 description = "Decode Splunk frozen journal.zst buckets and ingest into Elasticsearch"
 readme = "README.md"
 requires-python = ">=3.10"

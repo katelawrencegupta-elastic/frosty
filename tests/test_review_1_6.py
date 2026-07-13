@@ -26,10 +26,17 @@ from frosty.models import BucketIngestResult, IngestResult
 
 class DocumentBulkIdTests(unittest.TestCase):
     def test_document_bulk_id_is_stable(self) -> None:
-        left = document_bulk_id("apache/db_1", 1, 2, 3)
-        right = document_bulk_id("apache/db_1", 1, 2, 3)
+        left = document_bulk_id("apache/db_1", 1, 2, 3, 0)
+        right = document_bulk_id("apache/db_1", 1, 2, 3, 0)
         self.assertEqual(left, right)
-        self.assertNotEqual(left, document_bulk_id("apache/db_1", 1, 2, 4))
+        self.assertNotEqual(left, document_bulk_id("apache/db_1", 1, 2, 4, 0))
+
+    def test_document_bulk_id_includes_event_ordinal(self) -> None:
+        # Stream coordinates alone collide in real journals; ordinal must distinguish.
+        same_coords = dict(bucket_key="apache/db_1", stream_id=1, stream_offset=2, stream_sub_offset=3)
+        left = document_bulk_id(**same_coords, event_ordinal=0)
+        right = document_bulk_id(**same_coords, event_ordinal=1)
+        self.assertNotEqual(left, right)
 
     def test_bulk_lines_emit_id_without_index_and_strip_private_field(self) -> None:
         doc = {
