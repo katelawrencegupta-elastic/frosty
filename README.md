@@ -10,6 +10,7 @@ Frosty reads Splunk's on-disk frozen bucket layout, decodes the binary journal f
 - **Event classification** — detects access logs, syslog, AWS CloudTrail, VPC flow logs, and generic events per bucket
 - **Ingest pipelines** — deploys GROK, JSON, and dissect parsers plus per-index router pipelines automatically
 - **Parallel ingest** — process multiple buckets concurrently with SQLite checkpointing for resume
+- **Decode/bulk pipeline** — optional overlap of journal decode and Elasticsearch bulk flush (off by default)
 - **Three interfaces** — CLI, Python SDK (`FrostyClient`), and FastAPI HTTP service
 - **Docker** — containerized API with read-only frozen-data mount and persistent checkpoints
 - **Scheduled sync** — hourly cron script deploys pipelines and ingests new buckets via the HTTP API
@@ -47,7 +48,7 @@ For running API tests locally:
 
 ```bash
 pip install -e ".[dev]"
-python -m unittest tests.test_api_phase1 -v
+python -m unittest discover -s tests -v
 ```
 
 ### Ingest
@@ -527,6 +528,9 @@ All settings are driven by environment variables:
 | `FROSTY_DISABLE_DOCS` | `false` | Set `true` to disable `/docs` and OpenAPI |
 | `FROSTY_INGEST_WORKERS` | `4` | Default parallel bucket ingest workers (CLI and API) |
 | `FROSTY_CONTAINER_WORKERS` | `true` | Run each worker in its own Docker container when `workers > 1` (set `false` in Docker Compose) |
+| `FROSTY_SKIP_METADATA` | `false` | Skip Splunk metadata field extraction during decode |
+| `FROSTY_BULK_PIPELINE_ENABLED` | `false` | Overlap journal decode with Elasticsearch bulk flush in a background thread |
+| `FROSTY_BULK_PIPELINE_PREFETCH` | `1` | Bulk batches buffered between decode and flush when pipeline is enabled |
 | `FROSTY_FROZEN_HOST_DIR` | `FROSTY_FROZEN_DIR` | Host path bind-mounted into worker containers |
 | `FROSTY_CHECKPOINT_VOLUME` | — | Docker volume name for checkpoint state in worker containers |
 | `FROSTY_WORKER_IMAGE` | `frosty-api:latest` | Image used for ingest worker containers |
@@ -549,6 +553,45 @@ Cron script overrides (optional):
 | `FROSTY_LOG_DIR` | `<repo>/logs` | Directory for `hourly-ingest.log` |
 | `FROSTY_JOB_WAIT_SECONDS` | `600` | Max wait for pipeline setup job to finish |
 | `FROSTY_JOB_POLL_SECONDS` | `5` | Poll interval when waiting on jobs |
+
+## Performance tuning
+
+Frosty includes several ingest optimizations. Most are enabled automatically; the decode/bulk pipeline is opt-in.
+
+| Optimization | Status | Notes |
+|--------------|--------|-------|
+| HTTP connection pooling | Always on | Elasticsearch requests reuse pooled `urllib3` connections (`elastic.py`) |
+| Latin-1 text decode fast path | Always on | Used for apache/nginx/syslog/vpc_flowlogs and matching sourcetypes (`text_decode.py`) |
+| Bucket-level parallelism | Configurable | `FROSTY_INGEST_WORKERS`, `FROSTY_CONTAINER_WORKERS`, `FROSTY_PARTITION_STRATEGY` |
+| Decode/bulk pipeline overlap | **Off by default** | Set `FROSTY_BULK_PIPELINE_ENABLED=true` to enable |
+
+### Decode/bulk pipeline overlap
+
+By default, each bucket is decoded and bulk-indexed sequentially in one thread: while Elasticsearch flushes a batch, journal decode is idle, and vice versa.
+
+When `FROSTY_BULK_PIPELINE_ENABLED=true`, frosty runs a **producer thread** (journal decode → NDJSON batch lines) and a **consumer thread** (bulk flush to Elasticsearch) connected by a bounded queue:
+
+```mermaid
+flowchart LR
+    subgraph producer [Producer thread]
+        D[iter_bucket_docs] --> Q[queue]
+    end
+    subgraph consumer [Consumer thread]
+        Q --> F[POST /_bulk via pooled HTTP]
+    end
+```
+
+- `FROSTY_BULK_PIPELINE_PREFETCH` (default `1`) controls how many bulk batches can be buffered ahead of the flush thread
+- Higher prefetch can improve throughput on high-latency Elasticsearch clusters at the cost of more memory (`prefetch × batch_size × avg_doc_size`)
+- Errors from either thread fail the bucket ingest; partial batches are not committed after a decode failure
+
+Enable for soak testing on large buckets:
+
+```bash
+export FROSTY_BULK_PIPELINE_ENABLED=true
+export FROSTY_BULK_PIPELINE_PREFETCH=2
+frosty-ingest --workers 4
+```
 
 ## Elasticsearch documents
 
@@ -746,6 +789,8 @@ frosty/
     api/              # FastAPI service, auth, APM
   tests/
     test_api_phase1.py  # API auth, jobs, remote-write lifespan
+    test_phase2.py      # HTTP pooling, text decode, metrics aggregation
+    test_phase4.py      # Decode/bulk pipeline overlap
   scripts/
     hourly-ingest.sh  # Cron helper — pipeline setup + resume ingest
   Dockerfile
