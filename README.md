@@ -235,17 +235,20 @@ Interactive docs are available at `http://localhost:${FROSTY_API_PORT:-8080}/doc
 
 | Method | Path | Auth | Description |
 |--------|------|------|-------------|
-| `GET` | `/health` | — | Service health, version, Elastic/APM status |
-| `GET` | `/v1/buckets` | optional | List discovered frozen buckets |
-| `POST` | `/v1/jobs/scan` | optional | Background event-kind scan |
-| `POST` | `/v1/jobs/dry-run` | optional | Background decode/count |
-| `POST` | `/v1/jobs/ingest` | optional | Background ingest to Elasticsearch |
-| `POST` | `/v1/jobs/pipelines/setup` | optional | Deploy/reindex pipelines |
-| `GET` | `/v1/jobs` | optional | List recent jobs |
-| `GET` | `/v1/jobs/{job_id}` | optional | Poll job status and result |
-| `POST` | `/v1/elastic/verify` | optional | Verify Elasticsearch connectivity |
+| `GET` | `/health` | — | Service health, version, Elastic/APM/remote-write status |
+| `GET` | `/metrics` | metrics key | Prometheus scrape endpoint |
+| `GET` | `/v1/buckets` | API key | List discovered frozen buckets |
+| `POST` | `/v1/jobs/scan` | API key | Background event-kind scan |
+| `POST` | `/v1/jobs/dry-run` | API key | Background decode/count |
+| `POST` | `/v1/jobs/ingest` | API key | Background ingest to Elasticsearch |
+| `POST` | `/v1/jobs/pipelines/setup` | API key | Deploy/reindex pipelines |
+| `GET` | `/v1/jobs` | API key | List recent jobs |
+| `GET` | `/v1/jobs/{job_id}` | API key | Poll job status and result |
+| `POST` | `/v1/elastic/verify` | API key | Verify Elasticsearch connectivity |
 
-Set `FROSTY_API_KEY` to require an `X-API-Key` header on protected routes.
+Set `FROSTY_REQUIRE_API_KEY=true` (recommended in production) to require `FROSTY_API_KEY` at startup and on all `/v1/*` routes via the `X-API-Key` header.
+
+`GET /metrics` uses a separate `FROSTY_METRICS_API_KEY` when set (same `X-API-Key` header) so Prometheus scrapers can use a dedicated credential.
 
 Long-running operations return `202 Accepted` with a `job_id`. Poll `GET /v1/jobs/{job_id}` until `status` is `completed` or `failed`.
 
@@ -255,6 +258,8 @@ Long-running operations return `202 Accepted` with a `job_id`. Poll `GET /v1/job
 PORT=${FROSTY_API_PORT:-8080}
 
 curl "http://localhost:${PORT}/health"
+
+curl -H "X-API-Key: ${FROSTY_METRICS_API_KEY}" "http://localhost:${PORT}/metrics"
 
 curl -H "X-API-Key: ${FROSTY_API_KEY}" "http://localhost:${PORT}/v1/buckets"
 
@@ -462,13 +467,18 @@ All settings are driven by environment variables:
 | `ELASTIC_API_KEY` | — | Elasticsearch API key |
 | `FROSTY_API_HOST` | `0.0.0.0` | HTTP bind address |
 | `FROSTY_API_PORT` | `8080` | HTTP listen port |
-| `FROSTY_API_KEY` | — | Require `X-API-Key` header when set |
+| `FROSTY_API_KEY` | — | API key for `/v1/*` routes (`X-API-Key` header) |
+| `FROSTY_REQUIRE_API_KEY` | `false` | When `true`, startup fails if `FROSTY_API_KEY` is unset |
+| `FROSTY_METRICS_API_KEY` | — | Separate key for `GET /metrics` (`X-API-Key` header) |
+| `FROSTY_DISABLE_DOCS` | `false` | Set `true` to disable `/docs` and OpenAPI |
 | `FROSTY_INGEST_WORKERS` | `4` | Default parallel bucket ingest workers (CLI and API) |
-| `FROSTY_CONTAINER_WORKERS` | `true` | Run each worker in its own Docker container when `workers > 1` |
+| `FROSTY_CONTAINER_WORKERS` | `true` | Run each worker in its own Docker container when `workers > 1` (set `false` in Docker Compose) |
 | `FROSTY_FROZEN_HOST_DIR` | `FROSTY_FROZEN_DIR` | Host path bind-mounted into worker containers |
 | `FROSTY_CHECKPOINT_VOLUME` | — | Docker volume name for checkpoint state in worker containers |
 | `FROSTY_WORKER_IMAGE` | `frosty-api:latest` | Image used for ingest worker containers |
 | `FROSTY_JOB_WORKERS` | `2` | Background job thread pool size |
+| `FROSTY_PROMETHEUS_REMOTE_WRITE_ENABLED` | `true` | Push metrics to Elasticsearch remote write |
+| `FROSTY_PROMETHEUS_REMOTE_WRITE_INTERVAL_SECONDS` | `15` | Background push interval for `frosty-api` |
 | `ELASTIC_APM_SERVER_URL` | — | APM server URL; enables tracing when auth is also set |
 | `ELASTIC_APM_SECRET_TOKEN` | — | APM secret token (Elastic Cloud **APM & Fleet**) |
 | `ELASTIC_APM_API_KEY` | — | APM agent key (Kibana **Applications → Agent keys**); not `ELASTIC_API_KEY` |

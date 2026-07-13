@@ -8,7 +8,7 @@ services:
       FROSTY_FROZEN_DIR: /data/frozen
       FROSTY_INGEST_ITERATION: ${FROSTY_INGEST_ITERATION:-}
       FROSTY_INGEST_WORKERS: ${FROSTY_INGEST_WORKERS:-4}
-      FROSTY_CONTAINER_WORKERS: ${FROSTY_CONTAINER_WORKERS:-true}
+      FROSTY_CONTAINER_WORKERS: ${FROSTY_CONTAINER_WORKERS:-false}
       FROSTY_PARTITION_STRATEGY: ${FROSTY_PARTITION_STRATEGY:-size}
       FROSTY_SKIP_METADATA: ${FROSTY_SKIP_METADATA:-false}
       FROSTY_FROZEN_HOST_DIR: ${FROSTY_FROZEN_DIR:-/Users/klg/Desktop/frozen}
@@ -19,7 +19,11 @@ services:
       FROSTY_API_HOST: 0.0.0.0
       FROSTY_API_PORT: "8080"
       FROSTY_JOB_WORKERS: ${FROSTY_JOB_WORKERS:-2}
-      FROSTY_API_KEY: ${FROSTY_API_KEY:-}
+      FROSTY_REQUIRE_API_KEY: ${FROSTY_REQUIRE_API_KEY:-true}
+      FROSTY_API_KEY: ${FROSTY_API_KEY:?Set FROSTY_API_KEY in .env}
+      FROSTY_METRICS_API_KEY: ${FROSTY_METRICS_API_KEY:?Set FROSTY_METRICS_API_KEY in .env}
+      FROSTY_PROMETHEUS_REMOTE_WRITE_ENABLED: ${FROSTY_PROMETHEUS_REMOTE_WRITE_ENABLED:-true}
+      FROSTY_PROMETHEUS_REMOTE_WRITE_INTERVAL_SECONDS: ${FROSTY_PROMETHEUS_REMOTE_WRITE_INTERVAL_SECONDS:-15}
       ELASTIC_URL: ${ELASTIC_URL:-https://klgfrostydev-f84e40.es.us-central1.gcp.elastic.cloud:443}
       ELASTIC_API_KEY: ${ELASTIC_API_KEY:?Set ELASTIC_API_KEY in .env}
       ELASTIC_APM_SERVER_URL: ${ELASTIC_APM_SERVER_URL:-}
@@ -30,9 +34,6 @@ services:
     volumes:
       - ${FROSTY_FROZEN_DIR:-/Users/klg/Desktop/frozen}:/data/frozen:ro
       - frosty-checkpoint:/data/checkpoint
-      - /var/run/docker.sock:/var/run/docker.sock
-    # Root required to talk to the mounted Docker socket when spawning worker containers.
-    user: "0:0"
     restart: unless-stopped
 
 volumes:
