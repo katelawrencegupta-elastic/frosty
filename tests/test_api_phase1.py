@@ -118,5 +118,69 @@ class RemoteWriteLifespanTests(unittest.TestCase):
             pusher.stop.assert_called_once()
 
 
+class ElasticVerifyErrorMappingTests(unittest.TestCase):
+    def setUp(self) -> None:
+        self._env = os.environ.copy()
+
+    def tearDown(self) -> None:
+        os.environ.clear()
+        os.environ.update(self._env)
+
+    def test_verify_maps_frosty_config_error_to_400(self) -> None:
+        from frosty.errors import FrostyConfigError
+
+        os.environ.pop("FROSTY_REQUIRE_API_KEY", None)
+        os.environ.pop("FROSTY_API_KEY", None)
+        with mock.patch("frosty.api.app.FrostyClient") as client_cls:
+            instance = client_cls.return_value
+            instance.verify_elastic.side_effect = FrostyConfigError("missing key")
+            app = create_app(FrostyConfig())
+            http = TestClient(app)
+            response = http.post("/v1/elastic/verify")
+            self.assertEqual(response.status_code, 400)
+            self.assertIn("missing key", response.json()["detail"])
+
+    def test_verify_maps_frosty_error_to_502(self) -> None:
+        from frosty.errors import FrostyError
+
+        os.environ.pop("FROSTY_REQUIRE_API_KEY", None)
+        os.environ.pop("FROSTY_API_KEY", None)
+        with mock.patch("frosty.api.app.FrostyClient") as client_cls:
+            instance = client_cls.return_value
+            instance.verify_elastic.side_effect = FrostyError("es down")
+            app = create_app(FrostyConfig())
+            http = TestClient(app)
+            response = http.post("/v1/elastic/verify")
+            self.assertEqual(response.status_code, 502)
+            self.assertIn("es down", response.json()["detail"])
+
+    def test_ingest_job_failure_surfaces_frosty_config_error(self) -> None:
+        import time
+
+        from frosty.errors import FrostyConfigError
+
+        os.environ.pop("FROSTY_REQUIRE_API_KEY", None)
+        os.environ.pop("FROSTY_API_KEY", None)
+        with mock.patch("frosty.api.app.FrostyClient") as client_cls:
+            instance = client_cls.return_value
+            instance.ingest.side_effect = FrostyConfigError("bad config")
+            app = create_app(FrostyConfig())
+            http = TestClient(app)
+            created = http.post("/v1/jobs/ingest", json={})
+            self.assertEqual(created.status_code, 202)
+            job_id = created.json()["job_id"]
+
+            payload = None
+            for _ in range(50):
+                payload = http.get(f"/v1/jobs/{job_id}").json()
+                if payload["status"] in ("completed", "failed"):
+                    break
+                time.sleep(0.05)
+            self.assertIsNotNone(payload)
+            assert payload is not None
+            self.assertEqual(payload["status"], "failed")
+            self.assertEqual(payload["error"], "bad config")
+
+
 if __name__ == "__main__":
     unittest.main()

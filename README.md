@@ -73,14 +73,14 @@ Use `--force` to clear the Frosty checkpoint and re-process every bucket. To avo
 
 ### Ingest iterations
 
-Each ingest run uses a **versioned iteration**. The current code baseline is **`1.9`**; auto-increment advances by **0.1** on each consecutive run (`1.9` → `2.0` → `2.1` → …). The next value is persisted at `{checkpoint_base}/.frosty-iteration-next`.
+Each ingest run uses a **versioned iteration**. The current code baseline is **`2.0`**; auto-increment advances by **0.1** on each consecutive run (`2.0` → `2.1` → …). The next value is persisted at `{checkpoint_base}/.frosty-iteration-next`.
 
-- Writes to timestamped indices (`frosty-apache-1.9-{YYYYMMDDHHMMSS}`)
-- Uses an isolated checkpoint at `{checkpoint_base}/iter-1.9/.frosty-checkpoint.db`
+- Writes to timestamped indices (`frosty-apache-2.0-{YYYYMMDDHHMMSS}`)
+- Uses an isolated checkpoint at `{checkpoint_base}/iter-2.0/.frosty-checkpoint.db`
 - Leaves prior iterations untouched in Elasticsearch
 
 ```bash
-# Auto iteration (claims from state file; starts at 1.9 when unset)
+# Auto iteration (claims from state file; starts at 2.0 when unset)
 frosty-ingest --workers 2
 
 # Pin a specific iteration without advancing the counter
@@ -92,8 +92,8 @@ curl -X POST http://localhost:8099/v1/jobs/ingest \
   -H "X-API-Key: ${FROSTY_API_KEY}" \
   -d '{"workers": 2, "resume": true}'
 
-# Starting value when no state file exists (default 1.9)
-FROSTY_INGEST_ITERATION=1.9 docker compose up -d
+# Starting value when no state file exists (default 2.0)
+FROSTY_INGEST_ITERATION=2.0 docker compose up -d
 ```
 
 Check the claimed iteration from CLI logs (`ingest_start iteration=…`) or by pinning `--iteration` / `FROSTY_INGEST_ITERATION`. The next auto value lives on disk at `<frozen-dir>/.frosty-iteration-next` (not exposed on `GET /health`).
@@ -521,7 +521,7 @@ All settings are driven by environment variables:
 | Variable | Default | Description |
 |----------|---------|-------------|
 | `FROSTY_FROZEN_DIR` | `/Users/klg/Desktop/frozen` | Splunk frozen bucket root |
-| `FROSTY_INGEST_ITERATION` | `1.9` | Starting iteration when no state file exists; then auto +0.1 per run |
+| `FROSTY_INGEST_ITERATION` | `2.0` | Starting iteration when no state file exists; then auto +0.1 per run |
 | `FROSTY_INDEX_TIMESTAMP` | auto at ingest start | Fixed UTC timestamp for index names (`YYYYMMDDHHMMSS`) |
 | `FROSTY_CHECKPOINT_PATH` | `<frozen-dir>/.frosty-checkpoint.db` | Resume checkpoint base; runtime uses `iter-{version}/` |
 | `ELASTIC_URL` | `https://klgfrostydev-f84e40.es.us-central1.gcp.elastic.cloud:443` | Elasticsearch URL |
@@ -567,11 +567,13 @@ Cron script overrides (optional):
 
 Frosty includes several ingest optimizations. Most are enabled by default.
 
-### Baseline: iteration 1.9
+### Baseline: iteration 2.0
 
-Use **ingest iteration `1.9`** as the metrics and throughput baseline for this codebase. Decode Prom numbers from **1.7 and earlier are not comparable** (the meter excluded `decoder.scan()` and used biased sampling); re-baseline charts at 1.8+ and treat **1.9** as the reference run.
+Use **ingest iteration `2.0`** as the metrics and throughput baseline for this codebase. Decode Prom numbers from **1.7 and earlier are not comparable** (the meter excluded `decoder.scan()` and used biased sampling). Prefer **1.9+** for phase timing and treat **2.0** as the reference after API/metrics/metadata-skip hardening.
 
-Reference full ingest of the local frozen dataset (`/Users/klg/Desktop/frozen`, 23 buckets, 2,123,277 docs, 4 local workers):
+Prometheus labels on ingest histograms/counters are **`index_name` + `ingest_iteration` only** (timestamp / `ingest_run` remain in logs and APM to avoid unbounded series cardinality). Run wall uses **`ingest_iteration`** alone.
+
+Reference full ingest of the local frozen dataset under the prior 1.9 baseline (`/Users/klg/Desktop/frozen`, 23 buckets, 2,123,277 docs, 4 local workers):
 
 | Signal | 1.9 reference (`1.9-20260713205615`) |
 |--------|--------------------------------------|
@@ -587,7 +589,7 @@ For regressions, prefer run wall / docs-s over summing per-bucket process durati
 | Latin-1 text decode fast path | Always on | Used for apache/nginx/syslog/vpc_flowlogs and matching sourcetypes (`text_decode.py`) |
 | Bucket-level parallelism | Configurable | `FROSTY_INGEST_WORKERS`, `FROSTY_CONTAINER_WORKERS`, `FROSTY_PARTITION_STRATEGY` |
 | Decode/bulk pipeline overlap | **On by default** | Set `FROSTY_BULK_PIPELINE_ENABLED=false` to disable |
-| Skip metadata extraction | **On by default** | Set `FROSTY_SKIP_METADATA=false` to keep `splunk.fields` |
+| Skip metadata extraction | **On by default** | Set `FROSTY_SKIP_METADATA=false` to keep `splunk.fields`; skip path walks varints only (no field maps) |
 | Decode timing sample | Every 64 events | `FROSTY_DECODE_TIMING_SAMPLE` (1 = every event); times `scan()` + map; extrapolates mean × N |
 | orjson bulk serialization | Always on | Faster NDJSON for Elasticsearch `_bulk` |
 | Bulk batch size | **2000** | Raise `FROSTY_BULK_BATCH_SIZE` (up to 5000) for fewer HTTP round-trips |
@@ -711,19 +713,19 @@ scrape_configs:
 
 | Metric | Type | Labels | Description |
 |--------|------|--------|-------------|
-| `frosty_journal_decodes_total` | Counter | `index_name`, `ingest_iteration`, `index_timestamp`, `ingest_run` | Journal files decoded |
-| `frosty_journal_events_decoded_total` | Counter | `index_name`, `ingest_iteration`, `index_timestamp`, `ingest_run` | Events decoded from journals |
-| `frosty_journal_bytes_decoded_total` | Counter | `index_name`, `ingest_iteration`, `index_timestamp`, `ingest_run` | Bytes of journal.zst decoded |
-| `frosty_journal_read_duration_seconds` | Histogram | `index_name`, `ingest_iteration`, `index_timestamp`, `ingest_run` | Wall-clock journal read time (zstd decompress + disk I/O) |
-| `frosty_journal_decode_duration_seconds` | Histogram | `index_name`, `ingest_iteration`, `index_timestamp`, `ingest_run` | Active decode/mapping time per bucket (excludes read and bulk flush wait) |
-| `frosty_bucket_bulk_duration_seconds` | Histogram | `index_name`, `ingest_iteration`, `index_timestamp`, `ingest_run` | Wall-clock time flushing bulk batches to Elasticsearch |
-| `frosty_journal_size_bytes` | Histogram | `index_name`, `ingest_iteration`, `index_timestamp`, `ingest_run` | On-disk journal file size |
-| `frosty_process_memory_rss_bytes` | Gauge | `index_name`, `ingest_iteration`, `index_timestamp`, `ingest_run` | Process RSS after most recent decode |
-| `frosty_ingest_documents_total` | Counter | `index_name`, `ingest_iteration`, `index_timestamp`, `ingest_run`, `result` | Documents indexed (`success` / `error`) |
-| `frosty_ingest_buckets_total` | Counter | `index_name`, `ingest_iteration`, `index_timestamp`, `ingest_run`, `status` | Bucket outcomes (`completed`, `failed`, `skipped`) |
-| `frosty_bucket_process_cpu_seconds` | Histogram | `index_name`, `ingest_iteration`, `index_timestamp`, `ingest_run` | Process CPU seconds per bucket (decode + bulk index) |
-| `frosty_bucket_process_duration_seconds` | Histogram | `index_name`, `ingest_iteration`, `index_timestamp`, `ingest_run` | Wall-clock seconds per bucket ingest |
-| `frosty_ingest_duration_seconds` | Gauge | `ingest_iteration`, `index_timestamp`, `ingest_run` | End-to-end wall-clock seconds for a full ingest run |
+| `frosty_journal_decodes_total` | Counter | `index_name`, `ingest_iteration` | Journal files decoded |
+| `frosty_journal_events_decoded_total` | Counter | `index_name`, `ingest_iteration` | Events decoded from journals |
+| `frosty_journal_bytes_decoded_total` | Counter | `index_name`, `ingest_iteration` | Bytes of journal.zst decoded |
+| `frosty_journal_read_duration_seconds` | Histogram | `index_name`, `ingest_iteration` | Wall-clock journal read time (zstd decompress + disk I/O) |
+| `frosty_journal_decode_duration_seconds` | Histogram | `index_name`, `ingest_iteration` | Active decode/mapping time per bucket (excludes read and bulk flush wait) |
+| `frosty_bucket_bulk_duration_seconds` | Histogram | `index_name`, `ingest_iteration` | Wall-clock time flushing bulk batches to Elasticsearch |
+| `frosty_journal_size_bytes` | Histogram | `index_name`, `ingest_iteration` | On-disk journal file size |
+| `frosty_process_memory_rss_bytes` | Gauge | `index_name`, `ingest_iteration` | Process RSS after most recent decode |
+| `frosty_ingest_documents_total` | Counter | `index_name`, `ingest_iteration`, `result` | Documents indexed (`success` / `error`) |
+| `frosty_ingest_buckets_total` | Counter | `index_name`, `ingest_iteration`, `status` | Bucket outcomes (`completed`, `failed`, `skipped`) |
+| `frosty_bucket_process_cpu_seconds` | Histogram | `index_name`, `ingest_iteration` | Process CPU seconds per bucket (decode + bulk index) |
+| `frosty_bucket_process_duration_seconds` | Histogram | `index_name`, `ingest_iteration` | Wall-clock seconds per bucket ingest |
+| `frosty_ingest_duration_seconds` | Gauge | `ingest_iteration` | End-to-end wall-clock seconds for a full ingest run |
 | `frosty_api_jobs_total` | Counter | `job_type`, `status` | API jobs (`submitted`, `running`, `completed`, `failed`) |
 
 ### API job metrics
@@ -795,7 +797,7 @@ Structured logs at `INFO` (use `frosty-ingest -v` for `DEBUG`):
 - `job_failed` — API background job failures (full traceback in server logs only)
 - `prometheus_remote_write` / `prometheus_remote_write_started` / `prometheus_remote_write_stopped` — Elasticsearch remote write lifecycle
 
-When Elastic APM is enabled, decode and ingest metrics include `ingest_iteration`, `index_timestamp`, and combined `ingest_run` (`{iteration}-{timestamp}`) on transactions and spans. Prometheus / remote-write series carry the same `ingest_run` label, so a specific run filters in Kibana Metrics with one equality: `ingest_run="1.6-20260713175506"`.
+When Elastic APM is enabled, decode and ingest metrics include `ingest_iteration`, `index_timestamp`, and combined `ingest_run` (`{iteration}-{timestamp}`) on transactions and spans. Prometheus / remote-write series use only `index_name` + `ingest_iteration` (plus `result`/`status` where applicable) to keep label cardinality bounded; filter a specific wall-clock run via logs/`IngestResult` or APM `ingest_run`.
 
 CLI example:
 

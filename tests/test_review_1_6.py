@@ -100,14 +100,16 @@ class BulkFlushTests(unittest.TestCase):
 
 
 class MetricsLabelTests(unittest.TestCase):
-    def test_prom_run_labels_include_ingest_run(self) -> None:
+    def test_prom_run_labels_exclude_per_run_cardinality(self) -> None:
         labels = _prom_run_labels(
             "apache",
-            ingest_iteration="1.6",
+            ingest_iteration="2.0",
             index_timestamp="20260713120000",
         )
-        self.assertEqual(labels["ingest_run"], "1.6-20260713120000")
-        self.assertEqual(labels["ingest_iteration"], "1.6")
+        self.assertEqual(labels["ingest_iteration"], "2.0")
+        self.assertEqual(labels["index_name"], "apache")
+        self.assertNotIn("ingest_run", labels)
+        self.assertNotIn("index_timestamp", labels)
 
 
 class SerializerDecodeMetricsTests(unittest.TestCase):
@@ -146,14 +148,10 @@ class SerializerDecodeMetricsTests(unittest.TestCase):
 
 class IngestWallMetricTests(unittest.TestCase):
     def test_record_ingest_run_sets_gauge(self) -> None:
-        labels = {
-            "ingest_iteration": "1.8",
-            "index_timestamp": "20260713205051",
-            "ingest_run": "1.8-20260713205051",
-        }
+        labels = {"ingest_iteration": "2.0"}
         record_ingest_run(
             duration_seconds=192.589,
-            ingest_iteration="1.8",
+            ingest_iteration="2.0",
             index_timestamp="20260713205051",
             log=False,
         )
