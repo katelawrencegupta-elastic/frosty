@@ -61,7 +61,7 @@ class JournalMetricsAggregationTests(unittest.TestCase):
                 holder.metrics = decode_metrics
             yield {"@timestamp": "2025-01-01T00:00:00+00:00", "message": "ok"}
 
-        def _fake_bulk_index(_elastic_url, _api_key, _index_name, docs, *, batch_size=500):
+        def _fake_bulk_index(_elastic_url, _api_key, _index_name, docs, *, batch_size=500, metrics_holder=None):
             list(docs)
             return 1, 0
 

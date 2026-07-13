@@ -9,9 +9,11 @@ import unittest
 from unittest import mock
 
 from frosty.elastic import (
+    _bulk_api_path,
     bulk_index,
     bulk_pipeline_enabled,
     bulk_pipeline_prefetch_batches,
+    bulk_refresh_enabled,
 )
 
 
@@ -34,6 +36,16 @@ class BulkPipelineConfigTests(unittest.TestCase):
     def test_prefetch_defaults_to_one(self) -> None:
         os.environ.pop("FROSTY_BULK_PIPELINE_PREFETCH", None)
         self.assertEqual(bulk_pipeline_prefetch_batches(), 1)
+
+    def test_bulk_refresh_disabled_by_default(self) -> None:
+        os.environ.pop("FROSTY_BULK_REFRESH", None)
+        self.assertFalse(bulk_refresh_enabled())
+        self.assertEqual(_bulk_api_path(), "/_bulk?refresh=false")
+
+    def test_bulk_refresh_wait_for_when_enabled(self) -> None:
+        os.environ["FROSTY_BULK_REFRESH"] = "true"
+        self.assertTrue(bulk_refresh_enabled())
+        self.assertEqual(_bulk_api_path(), "/_bulk?refresh=wait_for")
 
 
 class BulkPipelineBehaviorTests(unittest.TestCase):

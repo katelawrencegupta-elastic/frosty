@@ -146,7 +146,7 @@ Decode journals and bulk-index into Elasticsearch (`frosty-{index}-{iteration}-{
 | `--api-key` | `$ELASTIC_API_KEY` | API key for authentication |
 | `--index` | all | Filter to one Splunk index (repeatable) |
 | `--bucket` | all | Filter to one bucket directory name (repeatable) |
-| `--batch-size` | `500` | Bulk API batch size |
+| `--batch-size` | `2000` | Bulk API batch size (`FROSTY_BULK_BATCH_SIZE`) |
 | `--workers` | `4` (`FROSTY_INGEST_WORKERS`) | Parallel bucket ingest workers |
 | `--checkpoint` | `<frozen-dir>/.frosty-checkpoint.db` | Resume state database |
 | `--no-resume` | off | Re-ingest buckets even if checkpointed complete |
@@ -471,6 +471,12 @@ The HTTP service sends request traces to Elastic APM when configured. On **Obser
 
 Create an APM agent key with at least the **`event:write`** privilege. The value should be a base64-encoded string (typically starting with characters like `OGta...` or `SHZU...`), not an `essu_` Cloud management key.
 
+In Kibana: **Applications → Settings → Agent keys → Create APM agent key**. Copy the encoded key immediately (shown once). For this project's observability deployment, open:
+
+`https://klgobssvls-a09e0c.kb.us-central1.gcp.elastic.cloud` → **Applications** → **Settings** → **Agent keys**
+
+Do **not** use `ELASTIC_API_KEY` for APM intake — create a dedicated agent key and set `ELASTIC_APM_API_KEY` in `.env`. Remove any blank `ELASTIC_APM_API_KEY=` line; an empty value disables auth.
+
 Example `.env` entries:
 
 ```bash
@@ -501,6 +507,7 @@ Traces appear in Kibana under **Observability → APM → Services → frosty-ap
 |---------|-------|-----|
 | `apm_enabled: false` | Missing or invalid APM credentials | Set `ELASTIC_APM_API_KEY` or `ELASTIC_APM_SECRET_TOKEN` |
 | `HTTP 401` on ingest | Wrong or expired `ELASTIC_API_KEY` | Create a new API key for the target project |
+| `HTTP 401: missing header "Authorization"` (APM) | Blank `ELASTIC_APM_API_KEY=` in `.env` overrides config | Remove the blank line or paste a dedicated APM agent key from Kibana |
 | `HTTP 401: illegal base64` | Wrong key format (e.g. `essu_` Cloud API key) | Use an APM agent key from Kibana **Agent keys** |
 | `HTTP 401: Unauthenticated` (APM) | Key lacks APM privileges or wrong deployment | Recreate key with `event:write`; confirm `ELASTIC_APM_SERVER_URL` matches your project |
 | `Remote end closed connection without response` | HTTP keep-alive race on metrics flush (~30s) | Default fix: `ELASTIC_APM_METRICS_INTERVAL=25s` (set automatically); increase if it persists |
@@ -531,6 +538,8 @@ All settings are driven by environment variables:
 | `FROSTY_SKIP_METADATA` | `false` | Skip Splunk metadata field extraction during decode |
 | `FROSTY_BULK_PIPELINE_ENABLED` | `false` | Overlap journal decode with Elasticsearch bulk flush in a background thread |
 | `FROSTY_BULK_PIPELINE_PREFETCH` | `1` | Bulk batches buffered between decode and flush when pipeline is enabled |
+| `FROSTY_BULK_BATCH_SIZE` | `2000` | Documents per Elasticsearch `_bulk` request (500 is slow for large buckets) |
+| `FROSTY_BULK_REFRESH` | `false` | When false, bulk requests use `refresh=false` for faster ingest |
 | `FROSTY_FROZEN_HOST_DIR` | `FROSTY_FROZEN_DIR` | Host path bind-mounted into worker containers |
 | `FROSTY_CHECKPOINT_VOLUME` | — | Docker volume name for checkpoint state in worker containers |
 | `FROSTY_WORKER_IMAGE` | `frosty-api:latest` | Image used for ingest worker containers |
@@ -541,7 +550,7 @@ All settings are driven by environment variables:
 | `FROSTY_PROMETHEUS_REMOTE_WRITE_TIMEOUT_SECONDS` | `30` | HTTP timeout per remote-write push |
 | `ELASTIC_APM_SERVER_URL` | — | APM server URL; enables tracing when auth is also set |
 | `ELASTIC_APM_SECRET_TOKEN` | — | APM secret token (Elastic Cloud **APM & Fleet**) |
-| `ELASTIC_APM_API_KEY` | — | APM agent key (Kibana **Applications → Agent keys**); not `ELASTIC_API_KEY` |
+| `ELASTIC_APM_API_KEY` | — | Dedicated APM agent key (Kibana **Applications → Agent keys**); not `ELASTIC_API_KEY` |
 | `ELASTIC_APM_SERVICE_NAME` | `frosty-api` | Service name in APM |
 | `ELASTIC_APM_ENVIRONMENT` | `production` | APM environment tag |
 
@@ -564,6 +573,8 @@ Frosty includes several ingest optimizations. Most are enabled automatically; th
 | Latin-1 text decode fast path | Always on | Used for apache/nginx/syslog/vpc_flowlogs and matching sourcetypes (`text_decode.py`) |
 | Bucket-level parallelism | Configurable | `FROSTY_INGEST_WORKERS`, `FROSTY_CONTAINER_WORKERS`, `FROSTY_PARTITION_STRATEGY` |
 | Decode/bulk pipeline overlap | **Off by default** | Set `FROSTY_BULK_PIPELINE_ENABLED=true` to enable |
+| Bulk batch size | **2000** | Raise `FROSTY_BULK_BATCH_SIZE` (up to 5000) for fewer HTTP round-trips |
+| Bulk refresh | **`refresh=false`** | Keep `FROSTY_BULK_REFRESH=false` during ingest; documents become searchable on index refresh interval |
 
 ### Decode/bulk pipeline overlap
 
@@ -679,7 +690,9 @@ scrape_configs:
 | `frosty_journal_decodes_total` | Counter | `index_name`, `ingest_iteration`, `index_timestamp` | Journal files decoded |
 | `frosty_journal_events_decoded_total` | Counter | `index_name`, `ingest_iteration`, `index_timestamp` | Events decoded from journals |
 | `frosty_journal_bytes_decoded_total` | Counter | `index_name`, `ingest_iteration`, `index_timestamp` | Bytes of journal.zst decoded |
-| `frosty_journal_decode_duration_seconds` | Histogram | `index_name`, `ingest_iteration`, `index_timestamp` | Wall-clock decode time |
+| `frosty_journal_read_duration_seconds` | Histogram | `index_name`, `ingest_iteration`, `index_timestamp` | Wall-clock journal read time (zstd decompress + disk I/O) |
+| `frosty_journal_decode_duration_seconds` | Histogram | `index_name`, `ingest_iteration`, `index_timestamp` | Active decode/mapping time per bucket (excludes read and bulk flush wait) |
+| `frosty_bucket_bulk_duration_seconds` | Histogram | `index_name`, `ingest_iteration`, `index_timestamp` | Wall-clock time flushing bulk batches to Elasticsearch |
 | `frosty_journal_size_bytes` | Histogram | `index_name`, `ingest_iteration`, `index_timestamp` | On-disk journal file size |
 | `frosty_process_memory_rss_bytes` | Gauge | `index_name`, `ingest_iteration`, `index_timestamp` | Process RSS after most recent decode |
 | `frosty_ingest_documents_total` | Counter | `index_name`, `ingest_iteration`, `index_timestamp`, `result` | Documents indexed (`success` / `error`) |
@@ -737,7 +750,9 @@ Each `journal.zst` decode also records per-bucket fields returned on `IngestResu
 | `process_cpu_seconds` | Process CPU seconds for the full bucket ingest (decode + bulk index) |
 | `process_duration_seconds` | Wall-clock seconds for the full bucket ingest |
 | `journal_size_bytes` | On-disk size of the `journal.zst` file |
-| `decode_duration_ms` | Wall-clock time to decode the journal (ms) |
+| `read_duration_ms` | Wall-clock time reading compressed journal bytes from disk (ms) |
+| `decode_duration_ms` | Active decode/mapping time per event (ms); excludes read and bulk flush wait |
+| `bulk_duration_ms` | Wall-clock time spent in Elasticsearch bulk flushes (ms) |
 | `event_count` | Events decoded from the journal |
 | `process_cpu_time_ms` | CPU time consumed by the process during decode (ms) |
 | `process_cpu_percent` | CPU utilization during decode (0–100%, single-core equivalent) |
