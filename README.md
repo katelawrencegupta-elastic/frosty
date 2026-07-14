@@ -141,7 +141,7 @@ Decode journals and bulk-index into Elasticsearch (`frosty-{index}-{iteration}-{
 
 | Flag | Default | Description |
 |------|---------|-------------|
-| `--frozen-dir` | `$FROSTY_FROZEN_DIR` or `/Users/klg/Desktop/frozen` | Root folder with index subdirectories |
+| `--frozen-dir` | `$FROSTY_FROZEN_DIR` or `/data/frozen` | Root folder with index subdirectories |
 | `--elastic-url` | `$ELASTIC_URL` | Elasticsearch endpoint |
 | `--api-key` | `$ELASTIC_API_KEY` | API key for authentication |
 | `--index` | all | Filter to one Splunk index (repeatable) |
@@ -267,15 +267,17 @@ Key comparison uses constant-time `secrets.compare_digest`.
 
 **Failed jobs** return `error` (message string) but never include Python tracebacks in the JSON response. Full stack traces are logged server-side only.
 
-**`GET /v1/jobs`** accepts `limit` (1–500, default 50).
+**`GET /v1/jobs`** accepts `limit` (1–500, default 50). Completed/failed jobs are retained in memory (newest 500); in-flight jobs are never pruned.
+
+**`GET /v1/buckets`** accepts `limit` (1–500, default 100) and `offset` (default 0). The response includes `total`, `limit`, and `offset` alongside the page of buckets.
 
 ### Endpoints
 
 | Method | Path | Auth | Description |
 |--------|------|------|-------------|
-| `GET` | `/health` | — | Service health, version, Elastic/APM/remote-write status |
+| `GET` | `/health` | — | Service health; Elastic reachability probe when credentials are set |
 | `GET` | `/metrics` | metrics key | Prometheus scrape endpoint |
-| `GET` | `/v1/buckets` | API key | List discovered frozen buckets |
+| `GET` | `/v1/buckets` | API key | List discovered frozen buckets (`limit`/`offset`) |
 | `POST` | `/v1/jobs/scan` | API key | Background event-kind scan |
 | `POST` | `/v1/jobs/dry-run` | API key | Background decode/count |
 | `POST` | `/v1/jobs/ingest` | API key | Background ingest to Elasticsearch |
@@ -288,7 +290,7 @@ Set `FROSTY_REQUIRE_API_KEY=true` (recommended in production) to require `FROSTY
 
 `GET /metrics` uses a separate `FROSTY_METRICS_API_KEY` when set (same `X-API-Key` header) so Prometheus scrapers can use a dedicated credential with narrower scope.
 
-`GET /health` is always unauthenticated and reports `prometheus_remote_write_enabled` when remote write is configured.
+`GET /health` is always unauthenticated and returns HTTP 200 for process liveness. When Elasticsearch credentials are configured it probes the cluster (5s timeout) and sets `elastic_reachable` plus `status` (`ok` or `degraded`). It also reports `prometheus_remote_write_enabled` when remote write is configured. Use `POST /v1/elastic/verify` for a strict connectivity check.
 
 Long-running operations return `202 Accepted` with a `job_id`. Poll `GET /v1/jobs/{job_id}` until `status` is `completed` or `failed`.
 
@@ -301,7 +303,8 @@ curl "http://localhost:${PORT}/health"
 
 curl -H "X-API-Key: ${FROSTY_METRICS_API_KEY}" "http://localhost:${PORT}/metrics"
 
-curl -H "X-API-Key: ${FROSTY_API_KEY}" "http://localhost:${PORT}/v1/buckets"
+curl -H "X-API-Key: ${FROSTY_API_KEY}" \
+  "http://localhost:${PORT}/v1/buckets?limit=100&offset=0"
 
 curl -X POST "http://localhost:${PORT}/v1/jobs/ingest" \
   -H "Content-Type: application/json" \
@@ -338,21 +341,22 @@ docker compose logs -f
 Example `.env` for production-style deployment:
 
 ```bash
-FROSTY_FROZEN_DIR=/Users/klg/Desktop/frozen
+FROSTY_FROZEN_DIR=/path/to/frozen
 FROSTY_API_PORT=8099
 
 # Required in Docker Compose (FROSTY_REQUIRE_API_KEY=true)
 FROSTY_API_KEY=your-frosty-api-key
 FROSTY_METRICS_API_KEY=your-prometheus-scrape-key
 
-ELASTIC_URL=https://klgfrostydev-f84e40.es.us-central1.gcp.elastic.cloud:443
+ELASTIC_URL=https://your-elasticsearch.example:443
 ELASTIC_API_KEY=your-es-api-key
 
 # In-process workers (no docker.sock mount required)
 FROSTY_CONTAINER_WORKERS=false
 
-ELASTIC_APM_SERVER_URL=https://klgfrostydev-f84e40.apm.us-central1.gcp.elastic.cloud
-ELASTIC_APM_API_KEY=your-apm-agent-api-key
+# Optional APM
+# ELASTIC_APM_SERVER_URL=https://your-apm-server.example
+# ELASTIC_APM_API_KEY=your-apm-agent-api-key
 ```
 
 ### Onboard frozen data
@@ -480,10 +484,10 @@ Do **not** use `ELASTIC_API_KEY` for APM intake — create a dedicated agent key
 Example `.env` entries:
 
 ```bash
-ELASTIC_URL=https://klgfrostydev-f84e40.es.us-central1.gcp.elastic.cloud:443
+ELASTIC_URL=https://your-elasticsearch.example:443
 ELASTIC_API_KEY=your-es-api-key
 
-ELASTIC_APM_SERVER_URL=https://klgfrostydev-f84e40.apm.us-central1.gcp.elastic.cloud
+ELASTIC_APM_SERVER_URL=https://your-apm-server.example
 ELASTIC_APM_API_KEY=your-apm-agent-api-key
 ELASTIC_APM_SERVICE_NAME=frosty-api
 ELASTIC_APM_ENVIRONMENT=production
@@ -520,11 +524,11 @@ All settings are driven by environment variables:
 
 | Variable | Default | Description |
 |----------|---------|-------------|
-| `FROSTY_FROZEN_DIR` | `/Users/klg/Desktop/frozen` | Splunk frozen bucket root |
+| `FROSTY_FROZEN_DIR` | `/data/frozen` | Splunk frozen bucket root (host path in Compose via bind mount) |
 | `FROSTY_INGEST_ITERATION` | `2.0` | Starting iteration when no state file exists; then auto +0.1 per run |
 | `FROSTY_INDEX_TIMESTAMP` | auto at ingest start | Fixed UTC timestamp for index names (`YYYYMMDDHHMMSS`) |
 | `FROSTY_CHECKPOINT_PATH` | `<frozen-dir>/.frosty-checkpoint.db` | Resume checkpoint base; runtime uses `iter-{version}/` |
-| `ELASTIC_URL` | `https://klgfrostydev-f84e40.es.us-central1.gcp.elastic.cloud:443` | Elasticsearch URL |
+| `ELASTIC_URL` | — (required) | Elasticsearch URL |
 | `ELASTIC_API_KEY` | — | Elasticsearch API key |
 | `FROSTY_API_HOST` | `0.0.0.0` | HTTP bind address |
 | `FROSTY_API_PORT` | `8080` | HTTP listen port |
@@ -776,7 +780,7 @@ When `ELASTIC_URL` and `ELASTIC_API_KEY` are set and `FROSTY_PROMETHEUS_REMOTE_W
 - **API service (`frosty-api`)** — background pusher starts on app startup and stops on shutdown; pushes every 15s by default
 - **CLI (`frosty-ingest`)** — one push after each successful ingest run (skipped on `--dry-run`)
 
-The Elasticsearch API key must have write access to `metrics-*` data streams. `GET /health` reports `prometheus_remote_write_enabled: true` when remote write is configured (credentials present and enabled).
+The Elasticsearch API key must have write access to `metrics-*` data streams. `GET /health` reports `prometheus_remote_write_enabled: true` when remote write is configured (credentials present and enabled), and `elastic_reachable` / `status` when Elasticsearch credentials are set.
 
 Remote-write env vars are listed in [Configuration](#configuration) (`FROSTY_PROMETHEUS_*`).
 

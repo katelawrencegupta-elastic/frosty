@@ -162,6 +162,40 @@ class PipelineDeadlockTests(unittest.TestCase):
                 )
         self.assertLess(time.perf_counter() - started, 10.0)
 
+    def test_full_queue_does_not_discard_batches(self) -> None:
+        os.environ["FROSTY_BULK_FLUSH_WORKERS"] = "1"
+        os.environ["FROSTY_BULK_PIPELINE_PREFETCH"] = "1"
+        flushed: list[int] = []
+        release = threading.Event()
+
+        def _slow_flush(batch, **_kwargs):
+            release.wait(timeout=2.0)
+            flushed.append(len(batch) // 2)
+            return len(batch) // 2, 0
+
+        docs = [
+            {"@timestamp": "2025-01-01T00:00:00+00:00", "message": f"line-{i}"}
+            for i in range(6)
+        ]
+        with mock.patch("frosty.elastic._flush_bulk_batch", side_effect=_slow_flush):
+            thread = threading.Thread(
+                target=lambda: bulk_index(
+                    "https://example.es.io",
+                    "key",
+                    "frosty-apache-test",
+                    docs,
+                    batch_size=1,
+                    pipeline=True,
+                )
+            )
+            thread.start()
+            time.sleep(0.2)
+            release.set()
+            thread.join(timeout=10)
+            self.assertFalse(thread.is_alive())
+
+        self.assertEqual(sum(flushed), 6)
+
 
 class DiscoverBucketsTests(unittest.TestCase):
     def test_discover_is_lazy_and_prunes_indices(self) -> None:

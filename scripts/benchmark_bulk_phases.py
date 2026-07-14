@@ -53,7 +53,7 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
         "--frozen-dir",
-        default=os.environ.get("FROSTY_FROZEN_DIR", "/Users/klg/Desktop/frozen"),
+        default=os.environ.get("FROSTY_FROZEN_DIR", "/data/frozen"),
     )
     parser.add_argument("--index", default="apache")
     parser.add_argument("--bucket", default="db_1778817827_1778817740_1", help="Small bucket key")
