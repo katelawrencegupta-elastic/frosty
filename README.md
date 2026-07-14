@@ -540,6 +540,7 @@ All settings are driven by environment variables:
 | `FROSTY_BULK_FLUSH_WORKERS` | `2` | Concurrent `_bulk` flush threads per pipelined bucket (ES capacity) |
 | `FROSTY_BULK_GZIP_LEVEL` | `1` | Gzip compresslevel for bulk bodies (`1`=fast … `9`=small) |
 | `FROSTY_BULK_BATCH_SIZE` | `5000` | Documents per Elasticsearch `_bulk` request |
+| `FROSTY_BULK_MAX_BYTES` | `15728640` (15 MiB) | Max uncompressed NDJSON bytes per `_bulk` request (flush when docs or bytes hit the cap) |
 | `FROSTY_ES_HTTP_POOL_MAXSIZE` | `32` | Max connections per host in the urllib3 pool |
 | `FROSTY_ES_HTTP_POOL_NUM_POOLS` | `16` | Max host pools in the urllib3 pool manager |
 | `FROSTY_DECODE_TIMING_SAMPLE` | `64` | Sample per-event decode clocks every N events (1 = every event) |
@@ -600,6 +601,7 @@ For regressions, prefer run wall / docs-s over summing per-bucket process durati
 | orjson bulk serialization | Always on | Faster NDJSON for Elasticsearch `_bulk` |
 | Bulk gzip level | **1** (fast) | `FROSTY_BULK_GZIP_LEVEL` (`1`–`9`) |
 | Bulk batch size | **5000** | Raise further only if ES accepts larger HTTP bodies |
+| Bulk max bytes | **15 MiB** | `FROSTY_BULK_MAX_BYTES` uncapped body size safety valve (uncompressed NDJSON) |
 | HTTP connection pool | **32 / 16** | `FROSTY_ES_HTTP_POOL_MAXSIZE` / `FROSTY_ES_HTTP_POOL_NUM_POOLS` |
 | Bulk refresh | **`refresh=false`** | Keep `FROSTY_BULK_REFRESH=false` during ingest; documents become searchable on index refresh interval |
 | Run wall clock | Always on | `frosty_ingest_duration_seconds` + `IngestResult.duration_seconds` |

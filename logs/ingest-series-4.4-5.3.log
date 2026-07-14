@@ -1,0 +1,561 @@
+===== START 4.4 2026-07-14T17:49:47Z =====
+Found 23 bucket(s):
+  apache/db_1778817368_1778790392_0 -> /Users/klg/Desktop/frozen/apache/db_1778817368_1778790392_0/rawdata/journal.zst
+  apache/db_1778817827_1778817740_1 -> /Users/klg/Desktop/frozen/apache/db_1778817827_1778817740_1/rawdata/journal.zst
+  apache/db_1779083096_1778817830_2 -> /Users/klg/Desktop/frozen/apache/db_1779083096_1778817830_2/rawdata/journal.zst
+  apache/db_1779735029_1779126165_3 -> /Users/klg/Desktop/frozen/apache/db_1779735029_1779126165_3/rawdata/journal.zst
+  apache/db_1779899796_1779735176_4 -> /Users/klg/Desktop/frozen/apache/db_1779899796_1779735176_4/rawdata/journal.zst
+  apache/db_1781724333_1781701244_5 -> /Users/klg/Desktop/frozen/apache/db_1781724333_1781701244_5/rawdata/journal.zst
+  cloud_trail/db_1781656157_1781649501_0 -> /Users/klg/Desktop/frozen/cloud_trail/db_1781656157_1781649501_0/rawdata/journal.zst
+  cloud_trail/db_1781724330_1781701244_1 -> /Users/klg/Desktop/frozen/cloud_trail/db_1781724330_1781701244_1/rawdata/journal.zst
+  nginx/db_1778817338_1778790392_0 -> /Users/klg/Desktop/frozen/nginx/db_1778817338_1778790392_0/rawdata/journal.zst
+  nginx/db_1779083096_1778817740_2 -> /Users/klg/Desktop/frozen/nginx/db_1779083096_1778817740_2/rawdata/journal.zst
+  nginx/db_1779735029_1779126165_3 -> /Users/klg/Desktop/frozen/nginx/db_1779735029_1779126165_3/rawdata/journal.zst
+  nginx/db_1779899796_1779735176_4 -> /Users/klg/Desktop/frozen/nginx/db_1779899796_1779735176_4/rawdata/journal.zst
+  nginx/db_1781724333_1781701244_5 -> /Users/klg/Desktop/frozen/nginx/db_1781724333_1781701244_5/rawdata/journal.zst
+  syslog/db_1735689600_1735689600_1 -> /Users/klg/Desktop/frozen/syslog/db_1735689600_1735689600_1/rawdata/journal.zst
+  syslog/db_1778788945_1778788945_0 -> /Users/klg/Desktop/frozen/syslog/db_1778788945_1778788945_0/rawdata/journal.zst
+  syslog/db_1778817315_1778790392_2 -> /Users/klg/Desktop/frozen/syslog/db_1778817315_1778790392_2/rawdata/journal.zst
+  syslog/db_1778817352_1778817318_3 -> /Users/klg/Desktop/frozen/syslog/db_1778817352_1778817318_3/rawdata/journal.zst
+  syslog/db_1779083096_1778817740_5 -> /Users/klg/Desktop/frozen/syslog/db_1779083096_1778817740_5/rawdata/journal.zst
+  syslog/db_1779735029_1779126165_6 -> /Users/klg/Desktop/frozen/syslog/db_1779735029_1779126165_6/rawdata/journal.zst
+  syslog/db_1779899796_1779735176_7 -> /Users/klg/Desktop/frozen/syslog/db_1779899796_1779735176_7/rawdata/journal.zst
+  syslog/db_1781724333_1781701244_8 -> /Users/klg/Desktop/frozen/syslog/db_1781724333_1781701244_8/rawdata/journal.zst
+  vpc_flowlogs/db_1781656159_1781649500_0 -> /Users/klg/Desktop/frozen/vpc_flowlogs/db_1781656159_1781649500_0/rawdata/journal.zst
+  vpc_flowlogs/db_1781724330_1781701244_1 -> /Users/klg/Desktop/frozen/vpc_flowlogs/db_1781724330_1781701244_1/rawdata/journal.zst
+Connected to Elasticsearch 9.5.0
+Reached end of stream while peeking
+Reached end of stream while peeking
+Reached end of stream while peeking
+Reached end of stream while peeking
+Reached end of stream while peeking
+  apache/db_1778817827_1778817740_1 -> frosty-apache-4.4-20260714174947 status=completed indexed=303 errors=0
+  apache/db_1778817368_1778790392_0 -> frosty-apache-4.4-20260714174947 status=completed indexed=6679 errors=0
+  apache/db_1781724333_1781701244_5 -> frosty-apache-4.4-20260714174947 status=completed indexed=4307 errors=0
+  apache/db_1779083096_1778817830_2 -> frosty-apache-4.4-20260714174947 status=completed indexed=27269 errors=0
+  cloud_trail/db_1781656157_1781649501_0 -> frosty-cloud_trail-4.4-20260714174947 status=completed indexed=7888 errors=0
+  cloud_trail/db_1781724330_1781701244_1 -> frosty-cloud_trail-4.4-20260714174947 status=completed indexed=5081 errors=0
+  nginx/db_1778817338_1778790392_0 -> frosty-nginx-4.4-20260714174947 status=completed indexed=7369 errors=0
+  nginx/db_1779083096_1778817740_2 -> frosty-nginx-4.4-20260714174947 status=completed indexed=27206 errors=0
+  apache/db_1779899796_1779735176_4 -> frosty-apache-4.4-20260714174947 status=completed indexed=185229 errors=0
+  nginx/db_1781724333_1781701244_5 -> frosty-nginx-4.4-20260714174947 status=completed indexed=4441 errors=0
+  syslog/db_1735689600_1735689600_1 -> frosty-syslog-4.4-20260714174947 status=completed indexed=2 errors=0
+  syslog/db_1778788945_1778788945_0 -> frosty-syslog-4.4-20260714174947 status=completed indexed=1 errors=0
+  syslog/db_1778817315_1778790392_2 -> frosty-syslog-4.4-20260714174947 status=completed indexed=7190 errors=0
+  syslog/db_1778817352_1778817318_3 -> frosty-syslog-4.4-20260714174947 status=completed indexed=122 errors=0
+  syslog/db_1779083096_1778817740_5 -> frosty-syslog-4.4-20260714174947 status=completed indexed=27346 errors=0
+  nginx/db_1779899796_1779735176_4 -> frosty-nginx-4.4-20260714174947 status=completed indexed=183716 errors=0
+  syslog/db_1779899796_1779735176_7 -> frosty-syslog-4.4-20260714174947 status=completed indexed=184571 errors=0
+  syslog/db_1781724333_1781701244_8 -> frosty-syslog-4.4-20260714174947 status=completed indexed=5224 errors=0
+  apache/db_1779735029_1779126165_3 -> frosty-apache-4.4-20260714174947 status=completed indexed=476311 errors=0
+  vpc_flowlogs/db_1781656159_1781649500_0 -> frosty-vpc_flowlogs-4.4-20260714174947 status=completed indexed=7951 errors=0
+  vpc_flowlogs/db_1781724330_1781701244_1 -> frosty-vpc_flowlogs-4.4-20260714174947 status=completed indexed=4440 errors=0
+  nginx/db_1779735029_1779126165_3 -> frosty-nginx-4.4-20260714174947 status=completed indexed=475707 errors=0
+  syslog/db_1779735029_1779126165_6 -> frosty-syslog-4.4-20260714174947 status=completed indexed=474924 errors=0
+Done [4.4-20260714174947]: 2123277 documents indexed, 0 errors, 0 skipped, 0 failed, wall=66.927s
+===== END 4.4 exit= 2026-07-14T17:50:55Z =====
+===== START 4.5 2026-07-14T17:50:55Z =====
+Found 23 bucket(s):
+  apache/db_1778817368_1778790392_0 -> /Users/klg/Desktop/frozen/apache/db_1778817368_1778790392_0/rawdata/journal.zst
+  apache/db_1778817827_1778817740_1 -> /Users/klg/Desktop/frozen/apache/db_1778817827_1778817740_1/rawdata/journal.zst
+  apache/db_1779083096_1778817830_2 -> /Users/klg/Desktop/frozen/apache/db_1779083096_1778817830_2/rawdata/journal.zst
+  apache/db_1779735029_1779126165_3 -> /Users/klg/Desktop/frozen/apache/db_1779735029_1779126165_3/rawdata/journal.zst
+  apache/db_1779899796_1779735176_4 -> /Users/klg/Desktop/frozen/apache/db_1779899796_1779735176_4/rawdata/journal.zst
+  apache/db_1781724333_1781701244_5 -> /Users/klg/Desktop/frozen/apache/db_1781724333_1781701244_5/rawdata/journal.zst
+  cloud_trail/db_1781656157_1781649501_0 -> /Users/klg/Desktop/frozen/cloud_trail/db_1781656157_1781649501_0/rawdata/journal.zst
+  cloud_trail/db_1781724330_1781701244_1 -> /Users/klg/Desktop/frozen/cloud_trail/db_1781724330_1781701244_1/rawdata/journal.zst
+  nginx/db_1778817338_1778790392_0 -> /Users/klg/Desktop/frozen/nginx/db_1778817338_1778790392_0/rawdata/journal.zst
+  nginx/db_1779083096_1778817740_2 -> /Users/klg/Desktop/frozen/nginx/db_1779083096_1778817740_2/rawdata/journal.zst
+  nginx/db_1779735029_1779126165_3 -> /Users/klg/Desktop/frozen/nginx/db_1779735029_1779126165_3/rawdata/journal.zst
+  nginx/db_1779899796_1779735176_4 -> /Users/klg/Desktop/frozen/nginx/db_1779899796_1779735176_4/rawdata/journal.zst
+  nginx/db_1781724333_1781701244_5 -> /Users/klg/Desktop/frozen/nginx/db_1781724333_1781701244_5/rawdata/journal.zst
+  syslog/db_1735689600_1735689600_1 -> /Users/klg/Desktop/frozen/syslog/db_1735689600_1735689600_1/rawdata/journal.zst
+  syslog/db_1778788945_1778788945_0 -> /Users/klg/Desktop/frozen/syslog/db_1778788945_1778788945_0/rawdata/journal.zst
+  syslog/db_1778817315_1778790392_2 -> /Users/klg/Desktop/frozen/syslog/db_1778817315_1778790392_2/rawdata/journal.zst
+  syslog/db_1778817352_1778817318_3 -> /Users/klg/Desktop/frozen/syslog/db_1778817352_1778817318_3/rawdata/journal.zst
+  syslog/db_1779083096_1778817740_5 -> /Users/klg/Desktop/frozen/syslog/db_1779083096_1778817740_5/rawdata/journal.zst
+  syslog/db_1779735029_1779126165_6 -> /Users/klg/Desktop/frozen/syslog/db_1779735029_1779126165_6/rawdata/journal.zst
+  syslog/db_1779899796_1779735176_7 -> /Users/klg/Desktop/frozen/syslog/db_1779899796_1779735176_7/rawdata/journal.zst
+  syslog/db_1781724333_1781701244_8 -> /Users/klg/Desktop/frozen/syslog/db_1781724333_1781701244_8/rawdata/journal.zst
+  vpc_flowlogs/db_1781656159_1781649500_0 -> /Users/klg/Desktop/frozen/vpc_flowlogs/db_1781656159_1781649500_0/rawdata/journal.zst
+  vpc_flowlogs/db_1781724330_1781701244_1 -> /Users/klg/Desktop/frozen/vpc_flowlogs/db_1781724330_1781701244_1/rawdata/journal.zst
+Connected to Elasticsearch 9.5.0
+Reached end of stream while peeking
+Reached end of stream while peeking
+Reached end of stream while peeking
+Reached end of stream while peeking
+Reached end of stream while peeking
+  apache/db_1778817827_1778817740_1 -> frosty-apache-4.5-20260714175055 status=completed indexed=303 errors=0
+  apache/db_1778817368_1778790392_0 -> frosty-apache-4.5-20260714175055 status=completed indexed=6679 errors=0
+  apache/db_1781724333_1781701244_5 -> frosty-apache-4.5-20260714175055 status=completed indexed=4307 errors=0
+  apache/db_1779083096_1778817830_2 -> frosty-apache-4.5-20260714175055 status=completed indexed=27269 errors=0
+  cloud_trail/db_1781656157_1781649501_0 -> frosty-cloud_trail-4.5-20260714175055 status=completed indexed=7888 errors=0
+  cloud_trail/db_1781724330_1781701244_1 -> frosty-cloud_trail-4.5-20260714175055 status=completed indexed=5081 errors=0
+  nginx/db_1778817338_1778790392_0 -> frosty-nginx-4.5-20260714175055 status=completed indexed=7369 errors=0
+  nginx/db_1779083096_1778817740_2 -> frosty-nginx-4.5-20260714175055 status=completed indexed=27206 errors=0
+  apache/db_1779899796_1779735176_4 -> frosty-apache-4.5-20260714175055 status=completed indexed=185229 errors=0
+  nginx/db_1781724333_1781701244_5 -> frosty-nginx-4.5-20260714175055 status=completed indexed=4441 errors=0
+  syslog/db_1735689600_1735689600_1 -> frosty-syslog-4.5-20260714175055 status=completed indexed=2 errors=0
+  syslog/db_1778788945_1778788945_0 -> frosty-syslog-4.5-20260714175055 status=completed indexed=1 errors=0
+  syslog/db_1778817315_1778790392_2 -> frosty-syslog-4.5-20260714175055 status=completed indexed=7190 errors=0
+  syslog/db_1778817352_1778817318_3 -> frosty-syslog-4.5-20260714175055 status=completed indexed=122 errors=0
+  syslog/db_1779083096_1778817740_5 -> frosty-syslog-4.5-20260714175055 status=completed indexed=27346 errors=0
+  nginx/db_1779899796_1779735176_4 -> frosty-nginx-4.5-20260714175055 status=completed indexed=183716 errors=0
+  syslog/db_1779899796_1779735176_7 -> frosty-syslog-4.5-20260714175055 status=completed indexed=184571 errors=0
+  syslog/db_1781724333_1781701244_8 -> frosty-syslog-4.5-20260714175055 status=completed indexed=5224 errors=0
+  vpc_flowlogs/db_1781656159_1781649500_0 -> frosty-vpc_flowlogs-4.5-20260714175055 status=completed indexed=7951 errors=0
+  vpc_flowlogs/db_1781724330_1781701244_1 -> frosty-vpc_flowlogs-4.5-20260714175055 status=completed indexed=4440 errors=0
+  apache/db_1779735029_1779126165_3 -> frosty-apache-4.5-20260714175055 status=completed indexed=476311 errors=0
+  nginx/db_1779735029_1779126165_3 -> frosty-nginx-4.5-20260714175055 status=completed indexed=475707 errors=0
+  syslog/db_1779735029_1779126165_6 -> frosty-syslog-4.5-20260714175055 status=completed indexed=474924 errors=0
+Done [4.5-20260714175055]: 2123277 documents indexed, 0 errors, 0 skipped, 0 failed, wall=66.515s
+===== END 4.5 exit= 2026-07-14T17:52:02Z =====
+===== START 4.6 2026-07-14T17:52:02Z =====
+Found 23 bucket(s):
+  apache/db_1778817368_1778790392_0 -> /Users/klg/Desktop/frozen/apache/db_1778817368_1778790392_0/rawdata/journal.zst
+  apache/db_1778817827_1778817740_1 -> /Users/klg/Desktop/frozen/apache/db_1778817827_1778817740_1/rawdata/journal.zst
+  apache/db_1779083096_1778817830_2 -> /Users/klg/Desktop/frozen/apache/db_1779083096_1778817830_2/rawdata/journal.zst
+  apache/db_1779735029_1779126165_3 -> /Users/klg/Desktop/frozen/apache/db_1779735029_1779126165_3/rawdata/journal.zst
+  apache/db_1779899796_1779735176_4 -> /Users/klg/Desktop/frozen/apache/db_1779899796_1779735176_4/rawdata/journal.zst
+  apache/db_1781724333_1781701244_5 -> /Users/klg/Desktop/frozen/apache/db_1781724333_1781701244_5/rawdata/journal.zst
+  cloud_trail/db_1781656157_1781649501_0 -> /Users/klg/Desktop/frozen/cloud_trail/db_1781656157_1781649501_0/rawdata/journal.zst
+  cloud_trail/db_1781724330_1781701244_1 -> /Users/klg/Desktop/frozen/cloud_trail/db_1781724330_1781701244_1/rawdata/journal.zst
+  nginx/db_1778817338_1778790392_0 -> /Users/klg/Desktop/frozen/nginx/db_1778817338_1778790392_0/rawdata/journal.zst
+  nginx/db_1779083096_1778817740_2 -> /Users/klg/Desktop/frozen/nginx/db_1779083096_1778817740_2/rawdata/journal.zst
+  nginx/db_1779735029_1779126165_3 -> /Users/klg/Desktop/frozen/nginx/db_1779735029_1779126165_3/rawdata/journal.zst
+  nginx/db_1779899796_1779735176_4 -> /Users/klg/Desktop/frozen/nginx/db_1779899796_1779735176_4/rawdata/journal.zst
+  nginx/db_1781724333_1781701244_5 -> /Users/klg/Desktop/frozen/nginx/db_1781724333_1781701244_5/rawdata/journal.zst
+  syslog/db_1735689600_1735689600_1 -> /Users/klg/Desktop/frozen/syslog/db_1735689600_1735689600_1/rawdata/journal.zst
+  syslog/db_1778788945_1778788945_0 -> /Users/klg/Desktop/frozen/syslog/db_1778788945_1778788945_0/rawdata/journal.zst
+  syslog/db_1778817315_1778790392_2 -> /Users/klg/Desktop/frozen/syslog/db_1778817315_1778790392_2/rawdata/journal.zst
+  syslog/db_1778817352_1778817318_3 -> /Users/klg/Desktop/frozen/syslog/db_1778817352_1778817318_3/rawdata/journal.zst
+  syslog/db_1779083096_1778817740_5 -> /Users/klg/Desktop/frozen/syslog/db_1779083096_1778817740_5/rawdata/journal.zst
+  syslog/db_1779735029_1779126165_6 -> /Users/klg/Desktop/frozen/syslog/db_1779735029_1779126165_6/rawdata/journal.zst
+  syslog/db_1779899796_1779735176_7 -> /Users/klg/Desktop/frozen/syslog/db_1779899796_1779735176_7/rawdata/journal.zst
+  syslog/db_1781724333_1781701244_8 -> /Users/klg/Desktop/frozen/syslog/db_1781724333_1781701244_8/rawdata/journal.zst
+  vpc_flowlogs/db_1781656159_1781649500_0 -> /Users/klg/Desktop/frozen/vpc_flowlogs/db_1781656159_1781649500_0/rawdata/journal.zst
+  vpc_flowlogs/db_1781724330_1781701244_1 -> /Users/klg/Desktop/frozen/vpc_flowlogs/db_1781724330_1781701244_1/rawdata/journal.zst
+Connected to Elasticsearch 9.5.0
+Reached end of stream while peeking
+Reached end of stream while peeking
+Reached end of stream while peeking
+Reached end of stream while peeking
+Reached end of stream while peeking
+  apache/db_1778817827_1778817740_1 -> frosty-apache-4.6-20260714175203 status=completed indexed=303 errors=0
+  apache/db_1778817368_1778790392_0 -> frosty-apache-4.6-20260714175203 status=completed indexed=6679 errors=0
+  apache/db_1781724333_1781701244_5 -> frosty-apache-4.6-20260714175203 status=completed indexed=4307 errors=0
+  cloud_trail/db_1781656157_1781649501_0 -> frosty-cloud_trail-4.6-20260714175203 status=completed indexed=7888 errors=0
+  apache/db_1779083096_1778817830_2 -> frosty-apache-4.6-20260714175203 status=completed indexed=27269 errors=0
+  cloud_trail/db_1781724330_1781701244_1 -> frosty-cloud_trail-4.6-20260714175203 status=completed indexed=5081 errors=0
+  nginx/db_1778817338_1778790392_0 -> frosty-nginx-4.6-20260714175203 status=completed indexed=7369 errors=0
+  nginx/db_1779083096_1778817740_2 -> frosty-nginx-4.6-20260714175203 status=completed indexed=27206 errors=0
+  apache/db_1779899796_1779735176_4 -> frosty-apache-4.6-20260714175203 status=completed indexed=185229 errors=0
+  nginx/db_1781724333_1781701244_5 -> frosty-nginx-4.6-20260714175203 status=completed indexed=4441 errors=0
+  syslog/db_1735689600_1735689600_1 -> frosty-syslog-4.6-20260714175203 status=completed indexed=2 errors=0
+  syslog/db_1778788945_1778788945_0 -> frosty-syslog-4.6-20260714175203 status=completed indexed=1 errors=0
+  syslog/db_1778817315_1778790392_2 -> frosty-syslog-4.6-20260714175203 status=completed indexed=7190 errors=0
+  syslog/db_1778817352_1778817318_3 -> frosty-syslog-4.6-20260714175203 status=completed indexed=122 errors=0
+  nginx/db_1779899796_1779735176_4 -> frosty-nginx-4.6-20260714175203 status=completed indexed=183716 errors=0
+  syslog/db_1779083096_1778817740_5 -> frosty-syslog-4.6-20260714175203 status=completed indexed=27346 errors=0
+  syslog/db_1779899796_1779735176_7 -> frosty-syslog-4.6-20260714175203 status=completed indexed=184571 errors=0
+  syslog/db_1781724333_1781701244_8 -> frosty-syslog-4.6-20260714175203 status=completed indexed=5224 errors=0
+  vpc_flowlogs/db_1781656159_1781649500_0 -> frosty-vpc_flowlogs-4.6-20260714175203 status=completed indexed=7951 errors=0
+  vpc_flowlogs/db_1781724330_1781701244_1 -> frosty-vpc_flowlogs-4.6-20260714175203 status=completed indexed=4440 errors=0
+  apache/db_1779735029_1779126165_3 -> frosty-apache-4.6-20260714175203 status=completed indexed=476311 errors=0
+  nginx/db_1779735029_1779126165_3 -> frosty-nginx-4.6-20260714175203 status=completed indexed=475707 errors=0
+  syslog/db_1779735029_1779126165_6 -> frosty-syslog-4.6-20260714175203 status=completed indexed=474924 errors=0
+Done [4.6-20260714175203]: 2123277 documents indexed, 0 errors, 0 skipped, 0 failed, wall=64.595s
+===== END 4.6 exit= 2026-07-14T17:53:08Z =====
+===== START 4.7 2026-07-14T17:53:08Z =====
+Found 23 bucket(s):
+  apache/db_1778817368_1778790392_0 -> /Users/klg/Desktop/frozen/apache/db_1778817368_1778790392_0/rawdata/journal.zst
+  apache/db_1778817827_1778817740_1 -> /Users/klg/Desktop/frozen/apache/db_1778817827_1778817740_1/rawdata/journal.zst
+  apache/db_1779083096_1778817830_2 -> /Users/klg/Desktop/frozen/apache/db_1779083096_1778817830_2/rawdata/journal.zst
+  apache/db_1779735029_1779126165_3 -> /Users/klg/Desktop/frozen/apache/db_1779735029_1779126165_3/rawdata/journal.zst
+  apache/db_1779899796_1779735176_4 -> /Users/klg/Desktop/frozen/apache/db_1779899796_1779735176_4/rawdata/journal.zst
+  apache/db_1781724333_1781701244_5 -> /Users/klg/Desktop/frozen/apache/db_1781724333_1781701244_5/rawdata/journal.zst
+  cloud_trail/db_1781656157_1781649501_0 -> /Users/klg/Desktop/frozen/cloud_trail/db_1781656157_1781649501_0/rawdata/journal.zst
+  cloud_trail/db_1781724330_1781701244_1 -> /Users/klg/Desktop/frozen/cloud_trail/db_1781724330_1781701244_1/rawdata/journal.zst
+  nginx/db_1778817338_1778790392_0 -> /Users/klg/Desktop/frozen/nginx/db_1778817338_1778790392_0/rawdata/journal.zst
+  nginx/db_1779083096_1778817740_2 -> /Users/klg/Desktop/frozen/nginx/db_1779083096_1778817740_2/rawdata/journal.zst
+  nginx/db_1779735029_1779126165_3 -> /Users/klg/Desktop/frozen/nginx/db_1779735029_1779126165_3/rawdata/journal.zst
+  nginx/db_1779899796_1779735176_4 -> /Users/klg/Desktop/frozen/nginx/db_1779899796_1779735176_4/rawdata/journal.zst
+  nginx/db_1781724333_1781701244_5 -> /Users/klg/Desktop/frozen/nginx/db_1781724333_1781701244_5/rawdata/journal.zst
+  syslog/db_1735689600_1735689600_1 -> /Users/klg/Desktop/frozen/syslog/db_1735689600_1735689600_1/rawdata/journal.zst
+  syslog/db_1778788945_1778788945_0 -> /Users/klg/Desktop/frozen/syslog/db_1778788945_1778788945_0/rawdata/journal.zst
+  syslog/db_1778817315_1778790392_2 -> /Users/klg/Desktop/frozen/syslog/db_1778817315_1778790392_2/rawdata/journal.zst
+  syslog/db_1778817352_1778817318_3 -> /Users/klg/Desktop/frozen/syslog/db_1778817352_1778817318_3/rawdata/journal.zst
+  syslog/db_1779083096_1778817740_5 -> /Users/klg/Desktop/frozen/syslog/db_1779083096_1778817740_5/rawdata/journal.zst
+  syslog/db_1779735029_1779126165_6 -> /Users/klg/Desktop/frozen/syslog/db_1779735029_1779126165_6/rawdata/journal.zst
+  syslog/db_1779899796_1779735176_7 -> /Users/klg/Desktop/frozen/syslog/db_1779899796_1779735176_7/rawdata/journal.zst
+  syslog/db_1781724333_1781701244_8 -> /Users/klg/Desktop/frozen/syslog/db_1781724333_1781701244_8/rawdata/journal.zst
+  vpc_flowlogs/db_1781656159_1781649500_0 -> /Users/klg/Desktop/frozen/vpc_flowlogs/db_1781656159_1781649500_0/rawdata/journal.zst
+  vpc_flowlogs/db_1781724330_1781701244_1 -> /Users/klg/Desktop/frozen/vpc_flowlogs/db_1781724330_1781701244_1/rawdata/journal.zst
+Connected to Elasticsearch 9.5.0
+Reached end of stream while peeking
+Reached end of stream while peeking
+Reached end of stream while peeking
+Reached end of stream while peeking
+Reached end of stream while peeking
+  apache/db_1778817827_1778817740_1 -> frosty-apache-4.7-20260714175308 status=completed indexed=303 errors=0
+  apache/db_1778817368_1778790392_0 -> frosty-apache-4.7-20260714175308 status=completed indexed=6679 errors=0
+  apache/db_1781724333_1781701244_5 -> frosty-apache-4.7-20260714175308 status=completed indexed=4307 errors=0
+  apache/db_1779083096_1778817830_2 -> frosty-apache-4.7-20260714175308 status=completed indexed=27269 errors=0
+  cloud_trail/db_1781656157_1781649501_0 -> frosty-cloud_trail-4.7-20260714175308 status=completed indexed=7888 errors=0
+  nginx/db_1778817338_1778790392_0 -> frosty-nginx-4.7-20260714175308 status=completed indexed=7369 errors=0
+  cloud_trail/db_1781724330_1781701244_1 -> frosty-cloud_trail-4.7-20260714175308 status=completed indexed=5081 errors=0
+  nginx/db_1779083096_1778817740_2 -> frosty-nginx-4.7-20260714175308 status=completed indexed=27206 errors=0
+  apache/db_1779899796_1779735176_4 -> frosty-apache-4.7-20260714175308 status=completed indexed=185229 errors=0
+  nginx/db_1781724333_1781701244_5 -> frosty-nginx-4.7-20260714175308 status=completed indexed=4441 errors=0
+  syslog/db_1735689600_1735689600_1 -> frosty-syslog-4.7-20260714175308 status=completed indexed=2 errors=0
+  syslog/db_1778788945_1778788945_0 -> frosty-syslog-4.7-20260714175308 status=completed indexed=1 errors=0
+  syslog/db_1778817315_1778790392_2 -> frosty-syslog-4.7-20260714175308 status=completed indexed=7190 errors=0
+  syslog/db_1778817352_1778817318_3 -> frosty-syslog-4.7-20260714175308 status=completed indexed=122 errors=0
+  nginx/db_1779899796_1779735176_4 -> frosty-nginx-4.7-20260714175308 status=completed indexed=183716 errors=0
+  syslog/db_1779083096_1778817740_5 -> frosty-syslog-4.7-20260714175308 status=completed indexed=27346 errors=0
+  syslog/db_1779899796_1779735176_7 -> frosty-syslog-4.7-20260714175308 status=completed indexed=184571 errors=0
+  syslog/db_1781724333_1781701244_8 -> frosty-syslog-4.7-20260714175308 status=completed indexed=5224 errors=0
+  vpc_flowlogs/db_1781656159_1781649500_0 -> frosty-vpc_flowlogs-4.7-20260714175308 status=completed indexed=7951 errors=0
+  apache/db_1779735029_1779126165_3 -> frosty-apache-4.7-20260714175308 status=completed indexed=476311 errors=0
+  vpc_flowlogs/db_1781724330_1781701244_1 -> frosty-vpc_flowlogs-4.7-20260714175308 status=completed indexed=4440 errors=0
+  nginx/db_1779735029_1779126165_3 -> frosty-nginx-4.7-20260714175308 status=completed indexed=475707 errors=0
+  syslog/db_1779735029_1779126165_6 -> frosty-syslog-4.7-20260714175308 status=completed indexed=474924 errors=0
+Done [4.7-20260714175308]: 2123277 documents indexed, 0 errors, 0 skipped, 0 failed, wall=64.103s
+===== END 4.7 exit= 2026-07-14T17:54:13Z =====
+===== START 4.8 2026-07-14T17:54:13Z =====
+Found 23 bucket(s):
+  apache/db_1778817368_1778790392_0 -> /Users/klg/Desktop/frozen/apache/db_1778817368_1778790392_0/rawdata/journal.zst
+  apache/db_1778817827_1778817740_1 -> /Users/klg/Desktop/frozen/apache/db_1778817827_1778817740_1/rawdata/journal.zst
+  apache/db_1779083096_1778817830_2 -> /Users/klg/Desktop/frozen/apache/db_1779083096_1778817830_2/rawdata/journal.zst
+  apache/db_1779735029_1779126165_3 -> /Users/klg/Desktop/frozen/apache/db_1779735029_1779126165_3/rawdata/journal.zst
+  apache/db_1779899796_1779735176_4 -> /Users/klg/Desktop/frozen/apache/db_1779899796_1779735176_4/rawdata/journal.zst
+  apache/db_1781724333_1781701244_5 -> /Users/klg/Desktop/frozen/apache/db_1781724333_1781701244_5/rawdata/journal.zst
+  cloud_trail/db_1781656157_1781649501_0 -> /Users/klg/Desktop/frozen/cloud_trail/db_1781656157_1781649501_0/rawdata/journal.zst
+  cloud_trail/db_1781724330_1781701244_1 -> /Users/klg/Desktop/frozen/cloud_trail/db_1781724330_1781701244_1/rawdata/journal.zst
+  nginx/db_1778817338_1778790392_0 -> /Users/klg/Desktop/frozen/nginx/db_1778817338_1778790392_0/rawdata/journal.zst
+  nginx/db_1779083096_1778817740_2 -> /Users/klg/Desktop/frozen/nginx/db_1779083096_1778817740_2/rawdata/journal.zst
+  nginx/db_1779735029_1779126165_3 -> /Users/klg/Desktop/frozen/nginx/db_1779735029_1779126165_3/rawdata/journal.zst
+  nginx/db_1779899796_1779735176_4 -> /Users/klg/Desktop/frozen/nginx/db_1779899796_1779735176_4/rawdata/journal.zst
+  nginx/db_1781724333_1781701244_5 -> /Users/klg/Desktop/frozen/nginx/db_1781724333_1781701244_5/rawdata/journal.zst
+  syslog/db_1735689600_1735689600_1 -> /Users/klg/Desktop/frozen/syslog/db_1735689600_1735689600_1/rawdata/journal.zst
+  syslog/db_1778788945_1778788945_0 -> /Users/klg/Desktop/frozen/syslog/db_1778788945_1778788945_0/rawdata/journal.zst
+  syslog/db_1778817315_1778790392_2 -> /Users/klg/Desktop/frozen/syslog/db_1778817315_1778790392_2/rawdata/journal.zst
+  syslog/db_1778817352_1778817318_3 -> /Users/klg/Desktop/frozen/syslog/db_1778817352_1778817318_3/rawdata/journal.zst
+  syslog/db_1779083096_1778817740_5 -> /Users/klg/Desktop/frozen/syslog/db_1779083096_1778817740_5/rawdata/journal.zst
+  syslog/db_1779735029_1779126165_6 -> /Users/klg/Desktop/frozen/syslog/db_1779735029_1779126165_6/rawdata/journal.zst
+  syslog/db_1779899796_1779735176_7 -> /Users/klg/Desktop/frozen/syslog/db_1779899796_1779735176_7/rawdata/journal.zst
+  syslog/db_1781724333_1781701244_8 -> /Users/klg/Desktop/frozen/syslog/db_1781724333_1781701244_8/rawdata/journal.zst
+  vpc_flowlogs/db_1781656159_1781649500_0 -> /Users/klg/Desktop/frozen/vpc_flowlogs/db_1781656159_1781649500_0/rawdata/journal.zst
+  vpc_flowlogs/db_1781724330_1781701244_1 -> /Users/klg/Desktop/frozen/vpc_flowlogs/db_1781724330_1781701244_1/rawdata/journal.zst
+Connected to Elasticsearch 9.5.0
+Reached end of stream while peeking
+Reached end of stream while peeking
+Reached end of stream while peeking
+Reached end of stream while peeking
+Reached end of stream while peeking
+  apache/db_1778817827_1778817740_1 -> frosty-apache-4.8-20260714175413 status=completed indexed=303 errors=0
+  apache/db_1778817368_1778790392_0 -> frosty-apache-4.8-20260714175413 status=completed indexed=6679 errors=0
+  apache/db_1781724333_1781701244_5 -> frosty-apache-4.8-20260714175413 status=completed indexed=4307 errors=0
+  apache/db_1779083096_1778817830_2 -> frosty-apache-4.8-20260714175413 status=completed indexed=27269 errors=0
+  cloud_trail/db_1781656157_1781649501_0 -> frosty-cloud_trail-4.8-20260714175413 status=completed indexed=7888 errors=0
+  cloud_trail/db_1781724330_1781701244_1 -> frosty-cloud_trail-4.8-20260714175413 status=completed indexed=5081 errors=0
+  nginx/db_1778817338_1778790392_0 -> frosty-nginx-4.8-20260714175413 status=completed indexed=7369 errors=0
+  nginx/db_1779083096_1778817740_2 -> frosty-nginx-4.8-20260714175413 status=completed indexed=27206 errors=0
+  apache/db_1779899796_1779735176_4 -> frosty-apache-4.8-20260714175413 status=completed indexed=185229 errors=0
+  nginx/db_1781724333_1781701244_5 -> frosty-nginx-4.8-20260714175413 status=completed indexed=4441 errors=0
+  syslog/db_1735689600_1735689600_1 -> frosty-syslog-4.8-20260714175413 status=completed indexed=2 errors=0
+  syslog/db_1778788945_1778788945_0 -> frosty-syslog-4.8-20260714175413 status=completed indexed=1 errors=0
+  syslog/db_1778817315_1778790392_2 -> frosty-syslog-4.8-20260714175413 status=completed indexed=7190 errors=0
+  syslog/db_1778817352_1778817318_3 -> frosty-syslog-4.8-20260714175413 status=completed indexed=122 errors=0
+  nginx/db_1779899796_1779735176_4 -> frosty-nginx-4.8-20260714175413 status=completed indexed=183716 errors=0
+  syslog/db_1779083096_1778817740_5 -> frosty-syslog-4.8-20260714175413 status=completed indexed=27346 errors=0
+  syslog/db_1779899796_1779735176_7 -> frosty-syslog-4.8-20260714175413 status=completed indexed=184571 errors=0
+  syslog/db_1781724333_1781701244_8 -> frosty-syslog-4.8-20260714175413 status=completed indexed=5224 errors=0
+  vpc_flowlogs/db_1781656159_1781649500_0 -> frosty-vpc_flowlogs-4.8-20260714175413 status=completed indexed=7951 errors=0
+  vpc_flowlogs/db_1781724330_1781701244_1 -> frosty-vpc_flowlogs-4.8-20260714175413 status=completed indexed=4440 errors=0
+  apache/db_1779735029_1779126165_3 -> frosty-apache-4.8-20260714175413 status=completed indexed=476311 errors=0
+  nginx/db_1779735029_1779126165_3 -> frosty-nginx-4.8-20260714175413 status=completed indexed=475707 errors=0
+  syslog/db_1779735029_1779126165_6 -> frosty-syslog-4.8-20260714175413 status=completed indexed=474924 errors=0
+Done [4.8-20260714175413]: 2123277 documents indexed, 0 errors, 0 skipped, 0 failed, wall=66.994s
+===== END 4.8 exit= 2026-07-14T17:55:21Z =====
+===== START 4.9 2026-07-14T17:55:21Z =====
+Found 23 bucket(s):
+  apache/db_1778817368_1778790392_0 -> /Users/klg/Desktop/frozen/apache/db_1778817368_1778790392_0/rawdata/journal.zst
+  apache/db_1778817827_1778817740_1 -> /Users/klg/Desktop/frozen/apache/db_1778817827_1778817740_1/rawdata/journal.zst
+  apache/db_1779083096_1778817830_2 -> /Users/klg/Desktop/frozen/apache/db_1779083096_1778817830_2/rawdata/journal.zst
+  apache/db_1779735029_1779126165_3 -> /Users/klg/Desktop/frozen/apache/db_1779735029_1779126165_3/rawdata/journal.zst
+  apache/db_1779899796_1779735176_4 -> /Users/klg/Desktop/frozen/apache/db_1779899796_1779735176_4/rawdata/journal.zst
+  apache/db_1781724333_1781701244_5 -> /Users/klg/Desktop/frozen/apache/db_1781724333_1781701244_5/rawdata/journal.zst
+  cloud_trail/db_1781656157_1781649501_0 -> /Users/klg/Desktop/frozen/cloud_trail/db_1781656157_1781649501_0/rawdata/journal.zst
+  cloud_trail/db_1781724330_1781701244_1 -> /Users/klg/Desktop/frozen/cloud_trail/db_1781724330_1781701244_1/rawdata/journal.zst
+  nginx/db_1778817338_1778790392_0 -> /Users/klg/Desktop/frozen/nginx/db_1778817338_1778790392_0/rawdata/journal.zst
+  nginx/db_1779083096_1778817740_2 -> /Users/klg/Desktop/frozen/nginx/db_1779083096_1778817740_2/rawdata/journal.zst
+  nginx/db_1779735029_1779126165_3 -> /Users/klg/Desktop/frozen/nginx/db_1779735029_1779126165_3/rawdata/journal.zst
+  nginx/db_1779899796_1779735176_4 -> /Users/klg/Desktop/frozen/nginx/db_1779899796_1779735176_4/rawdata/journal.zst
+  nginx/db_1781724333_1781701244_5 -> /Users/klg/Desktop/frozen/nginx/db_1781724333_1781701244_5/rawdata/journal.zst
+  syslog/db_1735689600_1735689600_1 -> /Users/klg/Desktop/frozen/syslog/db_1735689600_1735689600_1/rawdata/journal.zst
+  syslog/db_1778788945_1778788945_0 -> /Users/klg/Desktop/frozen/syslog/db_1778788945_1778788945_0/rawdata/journal.zst
+  syslog/db_1778817315_1778790392_2 -> /Users/klg/Desktop/frozen/syslog/db_1778817315_1778790392_2/rawdata/journal.zst
+  syslog/db_1778817352_1778817318_3 -> /Users/klg/Desktop/frozen/syslog/db_1778817352_1778817318_3/rawdata/journal.zst
+  syslog/db_1779083096_1778817740_5 -> /Users/klg/Desktop/frozen/syslog/db_1779083096_1778817740_5/rawdata/journal.zst
+  syslog/db_1779735029_1779126165_6 -> /Users/klg/Desktop/frozen/syslog/db_1779735029_1779126165_6/rawdata/journal.zst
+  syslog/db_1779899796_1779735176_7 -> /Users/klg/Desktop/frozen/syslog/db_1779899796_1779735176_7/rawdata/journal.zst
+  syslog/db_1781724333_1781701244_8 -> /Users/klg/Desktop/frozen/syslog/db_1781724333_1781701244_8/rawdata/journal.zst
+  vpc_flowlogs/db_1781656159_1781649500_0 -> /Users/klg/Desktop/frozen/vpc_flowlogs/db_1781656159_1781649500_0/rawdata/journal.zst
+  vpc_flowlogs/db_1781724330_1781701244_1 -> /Users/klg/Desktop/frozen/vpc_flowlogs/db_1781724330_1781701244_1/rawdata/journal.zst
+Connected to Elasticsearch 9.5.0
+Reached end of stream while peeking
+Reached end of stream while peeking
+Reached end of stream while peeking
+Reached end of stream while peeking
+Reached end of stream while peeking
+  apache/db_1778817827_1778817740_1 -> frosty-apache-4.9-20260714175521 status=completed indexed=303 errors=0
+  apache/db_1778817368_1778790392_0 -> frosty-apache-4.9-20260714175521 status=completed indexed=6679 errors=0
+  apache/db_1781724333_1781701244_5 -> frosty-apache-4.9-20260714175521 status=completed indexed=4307 errors=0
+  apache/db_1779083096_1778817830_2 -> frosty-apache-4.9-20260714175521 status=completed indexed=27269 errors=0
+  cloud_trail/db_1781656157_1781649501_0 -> frosty-cloud_trail-4.9-20260714175521 status=completed indexed=7888 errors=0
+  cloud_trail/db_1781724330_1781701244_1 -> frosty-cloud_trail-4.9-20260714175521 status=completed indexed=5081 errors=0
+  nginx/db_1778817338_1778790392_0 -> frosty-nginx-4.9-20260714175521 status=completed indexed=7369 errors=0
+  nginx/db_1779083096_1778817740_2 -> frosty-nginx-4.9-20260714175521 status=completed indexed=27206 errors=0
+  apache/db_1779899796_1779735176_4 -> frosty-apache-4.9-20260714175521 status=completed indexed=185229 errors=0
+  nginx/db_1781724333_1781701244_5 -> frosty-nginx-4.9-20260714175521 status=completed indexed=4441 errors=0
+  syslog/db_1735689600_1735689600_1 -> frosty-syslog-4.9-20260714175521 status=completed indexed=2 errors=0
+  syslog/db_1778788945_1778788945_0 -> frosty-syslog-4.9-20260714175521 status=completed indexed=1 errors=0
+  syslog/db_1778817315_1778790392_2 -> frosty-syslog-4.9-20260714175521 status=completed indexed=7190 errors=0
+  syslog/db_1778817352_1778817318_3 -> frosty-syslog-4.9-20260714175521 status=completed indexed=122 errors=0
+  nginx/db_1779899796_1779735176_4 -> frosty-nginx-4.9-20260714175521 status=completed indexed=183716 errors=0
+  syslog/db_1779083096_1778817740_5 -> frosty-syslog-4.9-20260714175521 status=completed indexed=27346 errors=0
+  syslog/db_1779899796_1779735176_7 -> frosty-syslog-4.9-20260714175521 status=completed indexed=184571 errors=0
+  syslog/db_1781724333_1781701244_8 -> frosty-syslog-4.9-20260714175521 status=completed indexed=5224 errors=0
+  vpc_flowlogs/db_1781656159_1781649500_0 -> frosty-vpc_flowlogs-4.9-20260714175521 status=completed indexed=7951 errors=0
+  apache/db_1779735029_1779126165_3 -> frosty-apache-4.9-20260714175521 status=completed indexed=476311 errors=0
+  vpc_flowlogs/db_1781724330_1781701244_1 -> frosty-vpc_flowlogs-4.9-20260714175521 status=completed indexed=4440 errors=0
+  nginx/db_1779735029_1779126165_3 -> frosty-nginx-4.9-20260714175521 status=completed indexed=475707 errors=0
+  syslog/db_1779735029_1779126165_6 -> frosty-syslog-4.9-20260714175521 status=completed indexed=474924 errors=0
+Done [4.9-20260714175521]: 2123277 documents indexed, 0 errors, 0 skipped, 0 failed, wall=60.743s
+===== END 4.9 exit= 2026-07-14T17:56:23Z =====
+===== START 5.0 2026-07-14T17:56:23Z =====
+Found 23 bucket(s):
+  apache/db_1778817368_1778790392_0 -> /Users/klg/Desktop/frozen/apache/db_1778817368_1778790392_0/rawdata/journal.zst
+  apache/db_1778817827_1778817740_1 -> /Users/klg/Desktop/frozen/apache/db_1778817827_1778817740_1/rawdata/journal.zst
+  apache/db_1779083096_1778817830_2 -> /Users/klg/Desktop/frozen/apache/db_1779083096_1778817830_2/rawdata/journal.zst
+  apache/db_1779735029_1779126165_3 -> /Users/klg/Desktop/frozen/apache/db_1779735029_1779126165_3/rawdata/journal.zst
+  apache/db_1779899796_1779735176_4 -> /Users/klg/Desktop/frozen/apache/db_1779899796_1779735176_4/rawdata/journal.zst
+  apache/db_1781724333_1781701244_5 -> /Users/klg/Desktop/frozen/apache/db_1781724333_1781701244_5/rawdata/journal.zst
+  cloud_trail/db_1781656157_1781649501_0 -> /Users/klg/Desktop/frozen/cloud_trail/db_1781656157_1781649501_0/rawdata/journal.zst
+  cloud_trail/db_1781724330_1781701244_1 -> /Users/klg/Desktop/frozen/cloud_trail/db_1781724330_1781701244_1/rawdata/journal.zst
+  nginx/db_1778817338_1778790392_0 -> /Users/klg/Desktop/frozen/nginx/db_1778817338_1778790392_0/rawdata/journal.zst
+  nginx/db_1779083096_1778817740_2 -> /Users/klg/Desktop/frozen/nginx/db_1779083096_1778817740_2/rawdata/journal.zst
+  nginx/db_1779735029_1779126165_3 -> /Users/klg/Desktop/frozen/nginx/db_1779735029_1779126165_3/rawdata/journal.zst
+  nginx/db_1779899796_1779735176_4 -> /Users/klg/Desktop/frozen/nginx/db_1779899796_1779735176_4/rawdata/journal.zst
+  nginx/db_1781724333_1781701244_5 -> /Users/klg/Desktop/frozen/nginx/db_1781724333_1781701244_5/rawdata/journal.zst
+  syslog/db_1735689600_1735689600_1 -> /Users/klg/Desktop/frozen/syslog/db_1735689600_1735689600_1/rawdata/journal.zst
+  syslog/db_1778788945_1778788945_0 -> /Users/klg/Desktop/frozen/syslog/db_1778788945_1778788945_0/rawdata/journal.zst
+  syslog/db_1778817315_1778790392_2 -> /Users/klg/Desktop/frozen/syslog/db_1778817315_1778790392_2/rawdata/journal.zst
+  syslog/db_1778817352_1778817318_3 -> /Users/klg/Desktop/frozen/syslog/db_1778817352_1778817318_3/rawdata/journal.zst
+  syslog/db_1779083096_1778817740_5 -> /Users/klg/Desktop/frozen/syslog/db_1779083096_1778817740_5/rawdata/journal.zst
+  syslog/db_1779735029_1779126165_6 -> /Users/klg/Desktop/frozen/syslog/db_1779735029_1779126165_6/rawdata/journal.zst
+  syslog/db_1779899796_1779735176_7 -> /Users/klg/Desktop/frozen/syslog/db_1779899796_1779735176_7/rawdata/journal.zst
+  syslog/db_1781724333_1781701244_8 -> /Users/klg/Desktop/frozen/syslog/db_1781724333_1781701244_8/rawdata/journal.zst
+  vpc_flowlogs/db_1781656159_1781649500_0 -> /Users/klg/Desktop/frozen/vpc_flowlogs/db_1781656159_1781649500_0/rawdata/journal.zst
+  vpc_flowlogs/db_1781724330_1781701244_1 -> /Users/klg/Desktop/frozen/vpc_flowlogs/db_1781724330_1781701244_1/rawdata/journal.zst
+Connected to Elasticsearch 9.5.0
+Reached end of stream while peeking
+Reached end of stream while peeking
+Reached end of stream while peeking
+Reached end of stream while peeking
+Reached end of stream while peeking
+  apache/db_1778817827_1778817740_1 -> frosty-apache-5.0-20260714175623 status=completed indexed=303 errors=0
+  apache/db_1778817368_1778790392_0 -> frosty-apache-5.0-20260714175623 status=completed indexed=6679 errors=0
+  apache/db_1781724333_1781701244_5 -> frosty-apache-5.0-20260714175623 status=completed indexed=4307 errors=0
+  apache/db_1779083096_1778817830_2 -> frosty-apache-5.0-20260714175623 status=completed indexed=27269 errors=0
+  cloud_trail/db_1781656157_1781649501_0 -> frosty-cloud_trail-5.0-20260714175623 status=completed indexed=7888 errors=0
+  cloud_trail/db_1781724330_1781701244_1 -> frosty-cloud_trail-5.0-20260714175623 status=completed indexed=5081 errors=0
+  nginx/db_1778817338_1778790392_0 -> frosty-nginx-5.0-20260714175623 status=completed indexed=7369 errors=0
+  nginx/db_1779083096_1778817740_2 -> frosty-nginx-5.0-20260714175623 status=completed indexed=27206 errors=0
+  apache/db_1779899796_1779735176_4 -> frosty-apache-5.0-20260714175623 status=completed indexed=185229 errors=0
+  nginx/db_1781724333_1781701244_5 -> frosty-nginx-5.0-20260714175623 status=completed indexed=4441 errors=0
+  syslog/db_1735689600_1735689600_1 -> frosty-syslog-5.0-20260714175623 status=completed indexed=2 errors=0
+  syslog/db_1778788945_1778788945_0 -> frosty-syslog-5.0-20260714175623 status=completed indexed=1 errors=0
+  syslog/db_1778817315_1778790392_2 -> frosty-syslog-5.0-20260714175623 status=completed indexed=7190 errors=0
+  syslog/db_1778817352_1778817318_3 -> frosty-syslog-5.0-20260714175623 status=completed indexed=122 errors=0
+  syslog/db_1779083096_1778817740_5 -> frosty-syslog-5.0-20260714175623 status=completed indexed=27346 errors=0
+  nginx/db_1779899796_1779735176_4 -> frosty-nginx-5.0-20260714175623 status=completed indexed=183716 errors=0
+  syslog/db_1779899796_1779735176_7 -> frosty-syslog-5.0-20260714175623 status=completed indexed=184571 errors=0
+  syslog/db_1781724333_1781701244_8 -> frosty-syslog-5.0-20260714175623 status=completed indexed=5224 errors=0
+  vpc_flowlogs/db_1781656159_1781649500_0 -> frosty-vpc_flowlogs-5.0-20260714175623 status=completed indexed=7951 errors=0
+  vpc_flowlogs/db_1781724330_1781701244_1 -> frosty-vpc_flowlogs-5.0-20260714175623 status=completed indexed=4440 errors=0
+  apache/db_1779735029_1779126165_3 -> frosty-apache-5.0-20260714175623 status=completed indexed=476311 errors=0
+  nginx/db_1779735029_1779126165_3 -> frosty-nginx-5.0-20260714175623 status=completed indexed=475707 errors=0
+  syslog/db_1779735029_1779126165_6 -> frosty-syslog-5.0-20260714175623 status=completed indexed=474924 errors=0
+Done [5.0-20260714175623]: 2123277 documents indexed, 0 errors, 0 skipped, 0 failed, wall=63.069s
+===== END 5.0 exit= 2026-07-14T17:57:27Z =====
+===== START 5.1 2026-07-14T17:57:27Z =====
+Found 23 bucket(s):
+  apache/db_1778817368_1778790392_0 -> /Users/klg/Desktop/frozen/apache/db_1778817368_1778790392_0/rawdata/journal.zst
+  apache/db_1778817827_1778817740_1 -> /Users/klg/Desktop/frozen/apache/db_1778817827_1778817740_1/rawdata/journal.zst
+  apache/db_1779083096_1778817830_2 -> /Users/klg/Desktop/frozen/apache/db_1779083096_1778817830_2/rawdata/journal.zst
+  apache/db_1779735029_1779126165_3 -> /Users/klg/Desktop/frozen/apache/db_1779735029_1779126165_3/rawdata/journal.zst
+  apache/db_1779899796_1779735176_4 -> /Users/klg/Desktop/frozen/apache/db_1779899796_1779735176_4/rawdata/journal.zst
+  apache/db_1781724333_1781701244_5 -> /Users/klg/Desktop/frozen/apache/db_1781724333_1781701244_5/rawdata/journal.zst
+  cloud_trail/db_1781656157_1781649501_0 -> /Users/klg/Desktop/frozen/cloud_trail/db_1781656157_1781649501_0/rawdata/journal.zst
+  cloud_trail/db_1781724330_1781701244_1 -> /Users/klg/Desktop/frozen/cloud_trail/db_1781724330_1781701244_1/rawdata/journal.zst
+  nginx/db_1778817338_1778790392_0 -> /Users/klg/Desktop/frozen/nginx/db_1778817338_1778790392_0/rawdata/journal.zst
+  nginx/db_1779083096_1778817740_2 -> /Users/klg/Desktop/frozen/nginx/db_1779083096_1778817740_2/rawdata/journal.zst
+  nginx/db_1779735029_1779126165_3 -> /Users/klg/Desktop/frozen/nginx/db_1779735029_1779126165_3/rawdata/journal.zst
+  nginx/db_1779899796_1779735176_4 -> /Users/klg/Desktop/frozen/nginx/db_1779899796_1779735176_4/rawdata/journal.zst
+  nginx/db_1781724333_1781701244_5 -> /Users/klg/Desktop/frozen/nginx/db_1781724333_1781701244_5/rawdata/journal.zst
+  syslog/db_1735689600_1735689600_1 -> /Users/klg/Desktop/frozen/syslog/db_1735689600_1735689600_1/rawdata/journal.zst
+  syslog/db_1778788945_1778788945_0 -> /Users/klg/Desktop/frozen/syslog/db_1778788945_1778788945_0/rawdata/journal.zst
+  syslog/db_1778817315_1778790392_2 -> /Users/klg/Desktop/frozen/syslog/db_1778817315_1778790392_2/rawdata/journal.zst
+  syslog/db_1778817352_1778817318_3 -> /Users/klg/Desktop/frozen/syslog/db_1778817352_1778817318_3/rawdata/journal.zst
+  syslog/db_1779083096_1778817740_5 -> /Users/klg/Desktop/frozen/syslog/db_1779083096_1778817740_5/rawdata/journal.zst
+  syslog/db_1779735029_1779126165_6 -> /Users/klg/Desktop/frozen/syslog/db_1779735029_1779126165_6/rawdata/journal.zst
+  syslog/db_1779899796_1779735176_7 -> /Users/klg/Desktop/frozen/syslog/db_1779899796_1779735176_7/rawdata/journal.zst
+  syslog/db_1781724333_1781701244_8 -> /Users/klg/Desktop/frozen/syslog/db_1781724333_1781701244_8/rawdata/journal.zst
+  vpc_flowlogs/db_1781656159_1781649500_0 -> /Users/klg/Desktop/frozen/vpc_flowlogs/db_1781656159_1781649500_0/rawdata/journal.zst
+  vpc_flowlogs/db_1781724330_1781701244_1 -> /Users/klg/Desktop/frozen/vpc_flowlogs/db_1781724330_1781701244_1/rawdata/journal.zst
+Connected to Elasticsearch 9.5.0
+Reached end of stream while peeking
+Reached end of stream while peeking
+Reached end of stream while peeking
+Reached end of stream while peeking
+Reached end of stream while peeking
+  apache/db_1778817827_1778817740_1 -> frosty-apache-5.1-20260714175727 status=completed indexed=303 errors=0
+  apache/db_1778817368_1778790392_0 -> frosty-apache-5.1-20260714175727 status=completed indexed=6679 errors=0
+  apache/db_1781724333_1781701244_5 -> frosty-apache-5.1-20260714175727 status=completed indexed=4307 errors=0
+  apache/db_1779083096_1778817830_2 -> frosty-apache-5.1-20260714175727 status=completed indexed=27269 errors=0
+  cloud_trail/db_1781656157_1781649501_0 -> frosty-cloud_trail-5.1-20260714175727 status=completed indexed=7888 errors=0
+  cloud_trail/db_1781724330_1781701244_1 -> frosty-cloud_trail-5.1-20260714175727 status=completed indexed=5081 errors=0
+  nginx/db_1778817338_1778790392_0 -> frosty-nginx-5.1-20260714175727 status=completed indexed=7369 errors=0
+  nginx/db_1779083096_1778817740_2 -> frosty-nginx-5.1-20260714175727 status=completed indexed=27206 errors=0
+  apache/db_1779899796_1779735176_4 -> frosty-apache-5.1-20260714175727 status=completed indexed=185229 errors=0
+  nginx/db_1781724333_1781701244_5 -> frosty-nginx-5.1-20260714175727 status=completed indexed=4441 errors=0
+  syslog/db_1735689600_1735689600_1 -> frosty-syslog-5.1-20260714175727 status=completed indexed=2 errors=0
+  syslog/db_1778788945_1778788945_0 -> frosty-syslog-5.1-20260714175727 status=completed indexed=1 errors=0
+  syslog/db_1778817315_1778790392_2 -> frosty-syslog-5.1-20260714175727 status=completed indexed=7190 errors=0
+  syslog/db_1778817352_1778817318_3 -> frosty-syslog-5.1-20260714175727 status=completed indexed=122 errors=0
+  nginx/db_1779899796_1779735176_4 -> frosty-nginx-5.1-20260714175727 status=completed indexed=183716 errors=0
+  syslog/db_1779083096_1778817740_5 -> frosty-syslog-5.1-20260714175727 status=completed indexed=27346 errors=0
+  syslog/db_1779899796_1779735176_7 -> frosty-syslog-5.1-20260714175727 status=completed indexed=184571 errors=0
+  syslog/db_1781724333_1781701244_8 -> frosty-syslog-5.1-20260714175727 status=completed indexed=5224 errors=0
+  vpc_flowlogs/db_1781656159_1781649500_0 -> frosty-vpc_flowlogs-5.1-20260714175727 status=completed indexed=7951 errors=0
+  vpc_flowlogs/db_1781724330_1781701244_1 -> frosty-vpc_flowlogs-5.1-20260714175727 status=completed indexed=4440 errors=0
+  apache/db_1779735029_1779126165_3 -> frosty-apache-5.1-20260714175727 status=completed indexed=476311 errors=0
+  nginx/db_1779735029_1779126165_3 -> frosty-nginx-5.1-20260714175727 status=completed indexed=475707 errors=0
+  syslog/db_1779735029_1779126165_6 -> frosty-syslog-5.1-20260714175727 status=completed indexed=474924 errors=0
+Done [5.1-20260714175727]: 2123277 documents indexed, 0 errors, 0 skipped, 0 failed, wall=62.172s
+===== END 5.1 exit= 2026-07-14T17:58:30Z =====
+===== START 5.2 2026-07-14T17:58:30Z =====
+Found 23 bucket(s):
+  apache/db_1778817368_1778790392_0 -> /Users/klg/Desktop/frozen/apache/db_1778817368_1778790392_0/rawdata/journal.zst
+  apache/db_1778817827_1778817740_1 -> /Users/klg/Desktop/frozen/apache/db_1778817827_1778817740_1/rawdata/journal.zst
+  apache/db_1779083096_1778817830_2 -> /Users/klg/Desktop/frozen/apache/db_1779083096_1778817830_2/rawdata/journal.zst
+  apache/db_1779735029_1779126165_3 -> /Users/klg/Desktop/frozen/apache/db_1779735029_1779126165_3/rawdata/journal.zst
+  apache/db_1779899796_1779735176_4 -> /Users/klg/Desktop/frozen/apache/db_1779899796_1779735176_4/rawdata/journal.zst
+  apache/db_1781724333_1781701244_5 -> /Users/klg/Desktop/frozen/apache/db_1781724333_1781701244_5/rawdata/journal.zst
+  cloud_trail/db_1781656157_1781649501_0 -> /Users/klg/Desktop/frozen/cloud_trail/db_1781656157_1781649501_0/rawdata/journal.zst
+  cloud_trail/db_1781724330_1781701244_1 -> /Users/klg/Desktop/frozen/cloud_trail/db_1781724330_1781701244_1/rawdata/journal.zst
+  nginx/db_1778817338_1778790392_0 -> /Users/klg/Desktop/frozen/nginx/db_1778817338_1778790392_0/rawdata/journal.zst
+  nginx/db_1779083096_1778817740_2 -> /Users/klg/Desktop/frozen/nginx/db_1779083096_1778817740_2/rawdata/journal.zst
+  nginx/db_1779735029_1779126165_3 -> /Users/klg/Desktop/frozen/nginx/db_1779735029_1779126165_3/rawdata/journal.zst
+  nginx/db_1779899796_1779735176_4 -> /Users/klg/Desktop/frozen/nginx/db_1779899796_1779735176_4/rawdata/journal.zst
+  nginx/db_1781724333_1781701244_5 -> /Users/klg/Desktop/frozen/nginx/db_1781724333_1781701244_5/rawdata/journal.zst
+  syslog/db_1735689600_1735689600_1 -> /Users/klg/Desktop/frozen/syslog/db_1735689600_1735689600_1/rawdata/journal.zst
+  syslog/db_1778788945_1778788945_0 -> /Users/klg/Desktop/frozen/syslog/db_1778788945_1778788945_0/rawdata/journal.zst
+  syslog/db_1778817315_1778790392_2 -> /Users/klg/Desktop/frozen/syslog/db_1778817315_1778790392_2/rawdata/journal.zst
+  syslog/db_1778817352_1778817318_3 -> /Users/klg/Desktop/frozen/syslog/db_1778817352_1778817318_3/rawdata/journal.zst
+  syslog/db_1779083096_1778817740_5 -> /Users/klg/Desktop/frozen/syslog/db_1779083096_1778817740_5/rawdata/journal.zst
+  syslog/db_1779735029_1779126165_6 -> /Users/klg/Desktop/frozen/syslog/db_1779735029_1779126165_6/rawdata/journal.zst
+  syslog/db_1779899796_1779735176_7 -> /Users/klg/Desktop/frozen/syslog/db_1779899796_1779735176_7/rawdata/journal.zst
+  syslog/db_1781724333_1781701244_8 -> /Users/klg/Desktop/frozen/syslog/db_1781724333_1781701244_8/rawdata/journal.zst
+  vpc_flowlogs/db_1781656159_1781649500_0 -> /Users/klg/Desktop/frozen/vpc_flowlogs/db_1781656159_1781649500_0/rawdata/journal.zst
+  vpc_flowlogs/db_1781724330_1781701244_1 -> /Users/klg/Desktop/frozen/vpc_flowlogs/db_1781724330_1781701244_1/rawdata/journal.zst
+Connected to Elasticsearch 9.5.0
+Reached end of stream while peeking
+Reached end of stream while peeking
+Reached end of stream while peeking
+Reached end of stream while peeking
+Reached end of stream while peeking
+  apache/db_1778817827_1778817740_1 -> frosty-apache-5.2-20260714175830 status=completed indexed=303 errors=0
+  apache/db_1778817368_1778790392_0 -> frosty-apache-5.2-20260714175830 status=completed indexed=6679 errors=0
+  apache/db_1781724333_1781701244_5 -> frosty-apache-5.2-20260714175830 status=completed indexed=4307 errors=0
+  apache/db_1779083096_1778817830_2 -> frosty-apache-5.2-20260714175830 status=completed indexed=27269 errors=0
+  cloud_trail/db_1781656157_1781649501_0 -> frosty-cloud_trail-5.2-20260714175830 status=completed indexed=7888 errors=0
+  nginx/db_1778817338_1778790392_0 -> frosty-nginx-5.2-20260714175830 status=completed indexed=7369 errors=0
+  cloud_trail/db_1781724330_1781701244_1 -> frosty-cloud_trail-5.2-20260714175830 status=completed indexed=5081 errors=0
+  nginx/db_1779083096_1778817740_2 -> frosty-nginx-5.2-20260714175830 status=completed indexed=27206 errors=0
+  apache/db_1779899796_1779735176_4 -> frosty-apache-5.2-20260714175830 status=completed indexed=185229 errors=0
+  nginx/db_1781724333_1781701244_5 -> frosty-nginx-5.2-20260714175830 status=completed indexed=4441 errors=0
+  syslog/db_1735689600_1735689600_1 -> frosty-syslog-5.2-20260714175830 status=completed indexed=2 errors=0
+  syslog/db_1778788945_1778788945_0 -> frosty-syslog-5.2-20260714175830 status=completed indexed=1 errors=0
+  syslog/db_1778817315_1778790392_2 -> frosty-syslog-5.2-20260714175830 status=completed indexed=7190 errors=0
+  syslog/db_1778817352_1778817318_3 -> frosty-syslog-5.2-20260714175830 status=completed indexed=122 errors=0
+  syslog/db_1779083096_1778817740_5 -> frosty-syslog-5.2-20260714175830 status=completed indexed=27346 errors=0
+  nginx/db_1779899796_1779735176_4 -> frosty-nginx-5.2-20260714175830 status=completed indexed=183716 errors=0
+  syslog/db_1779899796_1779735176_7 -> frosty-syslog-5.2-20260714175830 status=completed indexed=184571 errors=0
+  syslog/db_1781724333_1781701244_8 -> frosty-syslog-5.2-20260714175830 status=completed indexed=5224 errors=0
+  vpc_flowlogs/db_1781656159_1781649500_0 -> frosty-vpc_flowlogs-5.2-20260714175830 status=completed indexed=7951 errors=0
+  vpc_flowlogs/db_1781724330_1781701244_1 -> frosty-vpc_flowlogs-5.2-20260714175830 status=completed indexed=4440 errors=0
+  apache/db_1779735029_1779126165_3 -> frosty-apache-5.2-20260714175830 status=completed indexed=476311 errors=0
+  nginx/db_1779735029_1779126165_3 -> frosty-nginx-5.2-20260714175830 status=completed indexed=475707 errors=0
+  syslog/db_1779735029_1779126165_6 -> frosty-syslog-5.2-20260714175830 status=completed indexed=474924 errors=0
+Done [5.2-20260714175830]: 2123277 documents indexed, 0 errors, 0 skipped, 0 failed, wall=61.127s
+===== END 5.2 exit= 2026-07-14T17:59:32Z =====
+===== START 5.3 2026-07-14T17:59:32Z =====
+Found 23 bucket(s):
+  apache/db_1778817368_1778790392_0 -> /Users/klg/Desktop/frozen/apache/db_1778817368_1778790392_0/rawdata/journal.zst
+  apache/db_1778817827_1778817740_1 -> /Users/klg/Desktop/frozen/apache/db_1778817827_1778817740_1/rawdata/journal.zst
+  apache/db_1779083096_1778817830_2 -> /Users/klg/Desktop/frozen/apache/db_1779083096_1778817830_2/rawdata/journal.zst
+  apache/db_1779735029_1779126165_3 -> /Users/klg/Desktop/frozen/apache/db_1779735029_1779126165_3/rawdata/journal.zst
+  apache/db_1779899796_1779735176_4 -> /Users/klg/Desktop/frozen/apache/db_1779899796_1779735176_4/rawdata/journal.zst
+  apache/db_1781724333_1781701244_5 -> /Users/klg/Desktop/frozen/apache/db_1781724333_1781701244_5/rawdata/journal.zst
+  cloud_trail/db_1781656157_1781649501_0 -> /Users/klg/Desktop/frozen/cloud_trail/db_1781656157_1781649501_0/rawdata/journal.zst
+  cloud_trail/db_1781724330_1781701244_1 -> /Users/klg/Desktop/frozen/cloud_trail/db_1781724330_1781701244_1/rawdata/journal.zst
+  nginx/db_1778817338_1778790392_0 -> /Users/klg/Desktop/frozen/nginx/db_1778817338_1778790392_0/rawdata/journal.zst
+  nginx/db_1779083096_1778817740_2 -> /Users/klg/Desktop/frozen/nginx/db_1779083096_1778817740_2/rawdata/journal.zst
+  nginx/db_1779735029_1779126165_3 -> /Users/klg/Desktop/frozen/nginx/db_1779735029_1779126165_3/rawdata/journal.zst
+  nginx/db_1779899796_1779735176_4 -> /Users/klg/Desktop/frozen/nginx/db_1779899796_1779735176_4/rawdata/journal.zst
+  nginx/db_1781724333_1781701244_5 -> /Users/klg/Desktop/frozen/nginx/db_1781724333_1781701244_5/rawdata/journal.zst
+  syslog/db_1735689600_1735689600_1 -> /Users/klg/Desktop/frozen/syslog/db_1735689600_1735689600_1/rawdata/journal.zst
+  syslog/db_1778788945_1778788945_0 -> /Users/klg/Desktop/frozen/syslog/db_1778788945_1778788945_0/rawdata/journal.zst
+  syslog/db_1778817315_1778790392_2 -> /Users/klg/Desktop/frozen/syslog/db_1778817315_1778790392_2/rawdata/journal.zst
+  syslog/db_1778817352_1778817318_3 -> /Users/klg/Desktop/frozen/syslog/db_1778817352_1778817318_3/rawdata/journal.zst
+  syslog/db_1779083096_1778817740_5 -> /Users/klg/Desktop/frozen/syslog/db_1779083096_1778817740_5/rawdata/journal.zst
+  syslog/db_1779735029_1779126165_6 -> /Users/klg/Desktop/frozen/syslog/db_1779735029_1779126165_6/rawdata/journal.zst
+  syslog/db_1779899796_1779735176_7 -> /Users/klg/Desktop/frozen/syslog/db_1779899796_1779735176_7/rawdata/journal.zst
+  syslog/db_1781724333_1781701244_8 -> /Users/klg/Desktop/frozen/syslog/db_1781724333_1781701244_8/rawdata/journal.zst
+  vpc_flowlogs/db_1781656159_1781649500_0 -> /Users/klg/Desktop/frozen/vpc_flowlogs/db_1781656159_1781649500_0/rawdata/journal.zst
+  vpc_flowlogs/db_1781724330_1781701244_1 -> /Users/klg/Desktop/frozen/vpc_flowlogs/db_1781724330_1781701244_1/rawdata/journal.zst
+Connected to Elasticsearch 9.5.0
+Reached end of stream while peeking
+Reached end of stream while peeking
+Reached end of stream while peeking
+Reached end of stream while peeking
+Reached end of stream while peeking
+  apache/db_1778817827_1778817740_1 -> frosty-apache-5.3-20260714175933 status=completed indexed=303 errors=0
+  apache/db_1778817368_1778790392_0 -> frosty-apache-5.3-20260714175933 status=completed indexed=6679 errors=0
+  apache/db_1781724333_1781701244_5 -> frosty-apache-5.3-20260714175933 status=completed indexed=4307 errors=0
+  apache/db_1779083096_1778817830_2 -> frosty-apache-5.3-20260714175933 status=completed indexed=27269 errors=0
+  cloud_trail/db_1781656157_1781649501_0 -> frosty-cloud_trail-5.3-20260714175933 status=completed indexed=7888 errors=0
+  cloud_trail/db_1781724330_1781701244_1 -> frosty-cloud_trail-5.3-20260714175933 status=completed indexed=5081 errors=0
+  nginx/db_1778817338_1778790392_0 -> frosty-nginx-5.3-20260714175933 status=completed indexed=7369 errors=0
+  nginx/db_1779083096_1778817740_2 -> frosty-nginx-5.3-20260714175933 status=completed indexed=27206 errors=0
+  apache/db_1779899796_1779735176_4 -> frosty-apache-5.3-20260714175933 status=completed indexed=185229 errors=0
+  nginx/db_1781724333_1781701244_5 -> frosty-nginx-5.3-20260714175933 status=completed indexed=4441 errors=0
+  syslog/db_1735689600_1735689600_1 -> frosty-syslog-5.3-20260714175933 status=completed indexed=2 errors=0
+  syslog/db_1778788945_1778788945_0 -> frosty-syslog-5.3-20260714175933 status=completed indexed=1 errors=0
+  syslog/db_1778817315_1778790392_2 -> frosty-syslog-5.3-20260714175933 status=completed indexed=7190 errors=0
+  syslog/db_1778817352_1778817318_3 -> frosty-syslog-5.3-20260714175933 status=completed indexed=122 errors=0
+  syslog/db_1779083096_1778817740_5 -> frosty-syslog-5.3-20260714175933 status=completed indexed=27346 errors=0
+  nginx/db_1779899796_1779735176_4 -> frosty-nginx-5.3-20260714175933 status=completed indexed=183716 errors=0
+  syslog/db_1779899796_1779735176_7 -> frosty-syslog-5.3-20260714175933 status=completed indexed=184571 errors=0
+  syslog/db_1781724333_1781701244_8 -> frosty-syslog-5.3-20260714175933 status=completed indexed=5224 errors=0
+  vpc_flowlogs/db_1781656159_1781649500_0 -> frosty-vpc_flowlogs-5.3-20260714175933 status=completed indexed=7951 errors=0
+  vpc_flowlogs/db_1781724330_1781701244_1 -> frosty-vpc_flowlogs-5.3-20260714175933 status=completed indexed=4440 errors=0
+  apache/db_1779735029_1779126165_3 -> frosty-apache-5.3-20260714175933 status=completed indexed=476311 errors=0
+  nginx/db_1779735029_1779126165_3 -> frosty-nginx-5.3-20260714175933 status=completed indexed=475707 errors=0
+  syslog/db_1779735029_1779126165_6 -> frosty-syslog-5.3-20260714175933 status=completed indexed=474924 errors=0
+Done [5.3-20260714175933]: 2123277 documents indexed, 0 errors, 0 skipped, 0 failed, wall=61.220s
+===== END 5.3 exit= 2026-07-14T18:00:34Z =====
+ALL 10 COMPLETE

@@ -73,7 +73,7 @@ def main() -> int:
 
     config = FrostyConfig(frozen_dir=args.frozen_dir)
     elastic_url, api_key = config.require_elastic()
-    buckets = discover_buckets(config.frozen_dir)
+    buckets = list(discover_buckets(config.frozen_dir))
 
     def resolve(name: str):
         for bucket in buckets:
