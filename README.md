@@ -100,7 +100,7 @@ Check the claimed iteration from CLI logs (`ingest_start iteration=…`) or by p
 
 ### Deploy pipelines
 
-Pipelines are deployed automatically during ingest (`frosty-ingest` and `POST /v1/jobs/ingest` scan journals, create parser pipelines, and set each index's default pipeline before bulk indexing). You can also manage them directly:
+Pipelines are deployed automatically during ingest (`frosty-ingest` and `POST /v1/jobs/ingest`): Frosty creates any missing Frosty parser/router pipelines and sets each versioned index's `default_pipeline` before bulk indexing. Existing Frosty pipelines are reused (`only_missing`). You can also manage them directly:
 
 ```bash
 # Preview detected event kinds per index (no Elasticsearch calls)
@@ -418,12 +418,12 @@ REPO=/path/to/frosty   # e.g. /Users/you/frosty
 ) | crontab -
 ```
 
-The script sources `.env` for `FROSTY_API_PORT` and `FROSTY_API_KEY` (required when `FROSTY_REQUIRE_API_KEY=true`), verifies `/health`, then:
+The script sources `.env` for `FROSTY_API_PORT` and `FROSTY_API_KEY` (required when `FROSTY_REQUIRE_API_KEY=true`), takes an exclusive `flock` on `logs/hourly-ingest.lock` (overlapping cron ticks exit 0 with `SKIP`), verifies `/health`, then:
 
 1. Runs `POST /v1/jobs/pipelines/setup` and waits for completion (deploys parsers and sets index default pipelines)
-2. Submits `POST /v1/jobs/ingest` with `resume: true` (skips buckets already in the checkpoint)
+2. Submits `POST /v1/jobs/ingest` with `resume: true` and **waits** for that job to finish
 
-Override paths with `FROSTY_ENV_FILE` or `FROSTY_LOG_DIR`. Tune job polling with `FROSTY_JOB_WAIT_SECONDS` (default `600`) and `FROSTY_JOB_POLL_SECONDS` (default `5`).
+Override paths with `FROSTY_ENV_FILE`, `FROSTY_LOG_DIR`, or `FROSTY_HOURLY_LOCK`. Tune job polling with `FROSTY_JOB_WAIT_SECONDS` (default `600`) and `FROSTY_JOB_POLL_SECONDS` (default `5`).
 
 Verify and monitor:
 

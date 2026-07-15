@@ -20,6 +20,13 @@ JOB_WAIT_SECONDS="${FROSTY_JOB_WAIT_SECONDS:-600}"
 JOB_POLL_SECONDS="${FROSTY_JOB_POLL_SECONDS:-5}"
 
 mkdir -p "$LOG_DIR"
+LOCK_FILE="${FROSTY_HOURLY_LOCK:-$LOG_DIR/hourly-ingest.lock}"
+
+exec 9>"$LOCK_FILE"
+if ! flock -n 9; then
+  echo "${TIMESTAMP} SKIP hourly-ingest already running (lock=${LOCK_FILE})"
+  exit 0
+fi
 
 HEADERS=(-H "Content-Type: application/json")
 if [[ -n "${FROSTY_API_KEY:-}" ]]; then
@@ -66,4 +73,10 @@ fi
 echo "${TIMESTAMP} OK pipelines ${PIPELINE_JOB}"
 
 INGEST_JOB="$(submit_job "/v1/jobs/ingest" '{"resume": true}')"
-echo "${TIMESTAMP} OK ingest ${INGEST_JOB}"
+INGEST_ID="$(printf '%s' "${INGEST_JOB}" | python3 -c "import sys,json; print(json.load(sys.stdin)['job_id'])")"
+echo "${TIMESTAMP} OK ingest submitted ${INGEST_JOB}"
+if ! wait_for_job "${INGEST_ID}"; then
+  echo "${TIMESTAMP} ERROR ingest job failed: ${INGEST_JOB}"
+  exit 1
+fi
+echo "${TIMESTAMP} OK ingest completed ${INGEST_JOB}"

@@ -1,0 +1,49 @@
+Found 19 bucket(s):
+  mixed/db_1735689600_1735689600_1 -> /Users/klg/Desktop/frozen_mixed/db_1735689600_1735689600_1/rawdata/journal.zst
+  mixed/db_1778788945_1778788945_0 -> /Users/klg/Desktop/frozen_mixed/db_1778788945_1778788945_0/rawdata/journal.zst
+  mixed/db_1778817315_1778790392_2 -> /Users/klg/Desktop/frozen_mixed/db_1778817315_1778790392_2/rawdata/journal.zst
+  mixed/db_1778817338_1778790392_0 -> /Users/klg/Desktop/frozen_mixed/db_1778817338_1778790392_0/rawdata/journal.zst
+  mixed/db_1778817352_1778817318_3 -> /Users/klg/Desktop/frozen_mixed/db_1778817352_1778817318_3/rawdata/journal.zst
+  mixed/db_1778817368_1778790392_0 -> /Users/klg/Desktop/frozen_mixed/db_1778817368_1778790392_0/rawdata/journal.zst
+  mixed/db_1778817827_1778817740_1 -> /Users/klg/Desktop/frozen_mixed/db_1778817827_1778817740_1/rawdata/journal.zst
+  mixed/db_1779083096_1778817740_2 -> /Users/klg/Desktop/frozen_mixed/db_1779083096_1778817740_2/rawdata/journal.zst
+  mixed/db_1779083096_1778817740_5 -> /Users/klg/Desktop/frozen_mixed/db_1779083096_1778817740_5/rawdata/journal.zst
+  mixed/db_1779083096_1778817830_2 -> /Users/klg/Desktop/frozen_mixed/db_1779083096_1778817830_2/rawdata/journal.zst
+  mixed/db_1779735029_1779126165_3 -> /Users/klg/Desktop/frozen_mixed/db_1779735029_1779126165_3/rawdata/journal.zst
+  mixed/db_1779735029_1779126165_6 -> /Users/klg/Desktop/frozen_mixed/db_1779735029_1779126165_6/rawdata/journal.zst
+  mixed/db_1779899796_1779735176_4 -> /Users/klg/Desktop/frozen_mixed/db_1779899796_1779735176_4/rawdata/journal.zst
+  mixed/db_1779899796_1779735176_7 -> /Users/klg/Desktop/frozen_mixed/db_1779899796_1779735176_7/rawdata/journal.zst
+  mixed/db_1781656157_1781649501_0 -> /Users/klg/Desktop/frozen_mixed/db_1781656157_1781649501_0/rawdata/journal.zst
+  mixed/db_1781656159_1781649500_0 -> /Users/klg/Desktop/frozen_mixed/db_1781656159_1781649500_0/rawdata/journal.zst
+  mixed/db_1781724330_1781701244_1 -> /Users/klg/Desktop/frozen_mixed/db_1781724330_1781701244_1/rawdata/journal.zst
+  mixed/db_1781724333_1781701244_5 -> /Users/klg/Desktop/frozen_mixed/db_1781724333_1781701244_5/rawdata/journal.zst
+  mixed/db_1781724333_1781701244_8 -> /Users/klg/Desktop/frozen_mixed/db_1781724333_1781701244_8/rawdata/journal.zst
+Connected to Elasticsearch 9.5.0
+Reached end of stream while peeking
+Reached end of stream while peeking
+Reached end of stream while peeking
+Reached end of stream while peeking
+Reached end of stream while peeking
+  mixed/db_1735689600_1735689600_1 -> frosty-mixed-9.0-20260715154724 status=completed indexed=2 errors=0
+  mixed/db_1778788945_1778788945_0 -> frosty-mixed-9.0-20260715154724 status=completed indexed=1 errors=0
+  mixed/db_1778817352_1778817318_3 -> frosty-mixed-9.0-20260715154724 status=completed indexed=122 errors=0
+  mixed/db_1778817338_1778790392_0 -> frosty-mixed-9.0-20260715154724 status=completed indexed=7369 errors=0
+  mixed/db_1778817315_1778790392_2 -> frosty-mixed-9.0-20260715154724 status=completed indexed=7190 errors=0
+  mixed/db_1778817827_1778817740_1 -> frosty-mixed-9.0-20260715154724 status=completed indexed=303 errors=0
+  mixed/db_1778817368_1778790392_0 -> frosty-mixed-9.0-20260715154724 status=completed indexed=6679 errors=0
+  mixed/db_1779083096_1778817740_5 -> frosty-mixed-9.0-20260715154724 status=completed indexed=27346 errors=0
+  mixed/db_1779083096_1778817740_2 -> frosty-mixed-9.0-20260715154724 status=completed indexed=27206 errors=0
+  mixed/db_1779083096_1778817830_2 -> frosty-mixed-9.0-20260715154724 status=completed indexed=27269 errors=0
+  mixed/db_1779899796_1779735176_7 -> frosty-mixed-9.0-20260715154724 status=completed indexed=184571 errors=0
+  mixed/db_1779899796_1779735176_4 -> frosty-mixed-9.0-20260715154724 status=completed indexed=183716 errors=0
+  mixed/db_1781656157_1781649501_0 -> frosty-mixed-9.0-20260715154724 status=completed indexed=7888 errors=0
+  mixed/db_1781724330_1781701244_1 -> frosty-mixed-9.0-20260715154724 status=completed indexed=4440 errors=0
+  mixed/db_1781656159_1781649500_0 -> frosty-mixed-9.0-20260715154724 status=completed indexed=7951 errors=0
+  mixed/db_1781724333_1781701244_5 -> frosty-mixed-9.0-20260715154724 status=completed indexed=4441 errors=0
+  mixed/db_1781724333_1781701244_8 -> frosty-mixed-9.0-20260715154724 status=completed indexed=5224 errors=0
+  mixed/db_1779735029_1779126165_3 -> frosty-mixed-9.0-20260715154724 status=completed indexed=475707 errors=0
+  mixed/db_1779735029_1779126165_6 -> frosty-mixed-9.0-20260715154724 status=completed indexed=474924 errors=0
+Done [9.0-20260715154724]: 1452349 documents indexed, 0 errors, 0 skipped, 0 failed, wall=46.401s
+real 47.38
+user 31.75
+sys 1.33
